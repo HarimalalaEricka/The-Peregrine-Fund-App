@@ -2,13 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/editMessage"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="The Peregrine FUND"
-        android:textSize="24sp" />
+        android:hint="Écris ton message ici" />
+
+    <Button
+        android:id="@+id/btnSend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Envoyer SMS"
+        android:layout_marginTop="16dp"/>
 </LinearLayout>

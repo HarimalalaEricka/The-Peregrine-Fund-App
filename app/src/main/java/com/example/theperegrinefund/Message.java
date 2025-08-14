@@ -15,23 +15,29 @@ public class Message {
     private String elementsVisibles;
     private String degats;
     private UserApp user;
+    private String phoneNumber;
+    private String content;
 
-    public Message(int idMessage, Date dateCommencement, Date dateSignalement, String contenuCode,
-                   String pointRepere, String description, double surfaceApproximative,
-                   String direction, String elementsVisibles, String degats,
-                   UserApp user) {
+    // public Message(int idMessage, Date dateCommencement, Date dateSignalement, String contenuCode,
+    //                String pointRepere, String description, double surfaceApproximative,
+    //                String direction, String elementsVisibles, String degats,
+    //                UserApp user) {
 
-                    this.idMessage = idMessage;
-        this.dateCommencement = dateCommencement;
-        this.dateSignalement = dateSignalement;
-        this.contenuCode = contenuCode;
-        this.pointRepere = pointRepere;
-        this.description = description;
-        this.surfaceApproximative = surfaceApproximative;
-        this.direction = direction;
-        this.elementsVisibles = elementsVisibles;
-        this.degats = degats;
-        this.user = user;
+    //                 this.idMessage = idMessage;
+    //     this.dateCommencement = dateCommencement;
+    //     this.dateSignalement = dateSignalement;
+    //     this.contenuCode = contenuCode;
+    //     this.pointRepere = pointRepere;
+    //     this.description = description;
+    //     this.surfaceApproximative = surfaceApproximative;
+    //     this.direction = direction;
+    //     this.elementsVisibles = elementsVisibles;
+    //     this.degats = degats;
+    //     this.user = user;
+    // }
+    public Message(String phoneNumber, String content) {
+        this.phoneNumber = phoneNumber;
+        this.content = content;
     }
 
     public int getIdMessage() { 
@@ -109,5 +115,19 @@ public class Message {
     }
     public void setUser(UserApp user) { 
         this.user = user; 
+    }
+
+    // ---------------------------------
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public boolean isValid() {
+        return phoneNumber != null && !phoneNumber.isEmpty()
+                && content != null && !content.isEmpty();
     }
 }
