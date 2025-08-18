@@ -1,24 +1,29 @@
 package com.example.theperegrinefund;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+
+import java.util.Properties;
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int PERMISSION_REQUEST_CODE = 1;
     private EditText editMessage;
-    private SmsSender smsSender;
-    private final String FIXED_NUMBER = "0383817421";
+    private final String DEST_EMAIL = "bakomalalafenitra@gmail.com";
+    private final String USERNAME = "harimalalaerickarandria@gmail.com";
+    private final String PASSWORD = "mxoj bulo aybw hydl";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,42 +33,58 @@ public class MainActivity extends AppCompatActivity {
         editMessage = findViewById(R.id.editMessage);
         Button btnSend = findViewById(R.id.btnSend);
 
-        smsSender = new SmsSender();
-
-        btnSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.SEND_SMS)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(MainActivity.this,
-                            new String[]{Manifest.permission.SEND_SMS}, PERMISSION_REQUEST_CODE);
-                } else {
-                    sendMessage();
-                }
+        btnSend.setOnClickListener(v -> {
+            String message = editMessage.getText().toString();
+            if (message.isEmpty()) {
+                Toast.makeText(this, "Veuillez écrire un message", Toast.LENGTH_SHORT).show();
+            } else {
+                sendEmail(message);
             }
         });
     }
 
-    private void sendMessage() {
-        String content = editMessage.getText().toString();
-        Message message = new Message(FIXED_NUMBER, content);
+    private void sendEmail(String content) {
+        new Thread(() -> {
+            try {
+                Properties props = new Properties();
+                props.put("mail.smtp.auth", "true");
+                props.put("mail.smtp.starttls.enable", "true");
+                props.put("mail.smtp.host", "smtp.gmail.com");
+                props.put("mail.smtp.port", "587");
+                props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+                props.put("mail.smtp.ssl.protocols", "TLSv1.2");
 
-        try {
-            smsSender.send(message);
-            Toast.makeText(this, "Message envoyé", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Toast.makeText(this, "Erreur : " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
+                Session session = Session.getInstance(props, new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(USERNAME, PASSWORD);
+                    }
+                });
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                sendMessage();
-            } else {
-                Toast.makeText(this, "Permission refusée", Toast.LENGTH_SHORT).show();
+                Message message = new MimeMessage(session);
+                message.setFrom(new InternetAddress(USERNAME));
+                message.setRecipients(Message.RecipientType.TO, 
+                        InternetAddress.parse(DEST_EMAIL));
+                message.setSubject("Nouveau message de l'application");
+                message.setText(content);
+
+                Transport.send(message);
+
+                runOnUiThread(() -> {
+                    editMessage.setText("");
+                    Toast.makeText(MainActivity.this, 
+                            "Email envoyé avec succès", 
+                            Toast.LENGTH_LONG).show();
+                });
+
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, 
+                            "Erreur d'envoi: " + e.getMessage(), 
+                            Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                });
             }
-        }
+        }).start();
     }
 }
