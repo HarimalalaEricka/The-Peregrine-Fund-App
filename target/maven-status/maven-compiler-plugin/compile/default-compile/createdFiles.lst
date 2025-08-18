@@ -1,0 +1,3 @@
+com\example\serveur\controller\ServeurController.class
+com\example\serveur\model\Serveur.class
+com\example\serveur\ServeurApplication.class
