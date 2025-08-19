@@ -1,4 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Nom de l'application -->
     <string name="app_name">The Peregrine Fund</string>
-    <string name="the_peregrine_fund">The Peregrine FUND</string>
+    
+    <!-- Textes de l'interface de connexion -->
+    <string name="slogan_text">""Saving raptors, enriching lives.""</string>
+    <string name="name_hint">Name</string>
+    <string name="password_hint">Password</string>
+    <string name="sign_in_text">Sign in</string>
+    
+    <!-- Textes de l'interface principale -->
+    <string name="welcome_message">Bienvenue dans The Peregrine Fund!</string>
+    <string name="app_description">Découvrez le monde fascinant des rapaces et contribuez à leur protection. Explorez, apprenez et agissez pour la conservation de ces magnifiques oiseaux de proie.</string>
+    <string name="explore_button">Explorer</string>
+    <string name="profile_button">Mon Profil</string>
+    
+    <!-- Menu -->
+    <string name="action_logout">Déconnexion</string>
+    <string name="action_settings">Paramètres</string>
+    
+    <!-- Descriptions pour l'accessibilité -->
+    <string name="logo_description">Logo de l\'application raptor</string>
+    <string name="decoration_description">Image décorative centrale</string>
+    
+    <!-- Messages d'erreur -->
+    <string name="error_name_required">Le nom est requis</string>
+    <string name="error_password_required">Le mot de passe est requis</string>
+    <string name="error_invalid_credentials">Nom d\'utilisateur ou mot de passe incorrect</string>
+    <string name="success_login">Connexion réussie!</string>
 </resources>
