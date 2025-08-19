@@ -4,9 +4,9 @@ public class UserApp {
     private int idUserApp;
     private String login;
     private String mot_de_passe;
-    private Agent agent;
+    private Patrouilleur agent;
 
-    public UserApp(int idUserApp, String login, String mot_de_passe, Agent agent) {
+    public UserApp(int idUserApp, String login, String mot_de_passe, Patrouilleur agent) {
         this.idUserApp = idUserApp;
         this.login = login;
         this.mot_de_passe = mot_de_passe;
@@ -24,7 +24,7 @@ public class UserApp {
         return mot_de_passe;
     }
 
-    public Agent getAgent() {
+    public Patrouilleur getAgent() {
         return agent;
     }
 
@@ -40,7 +40,7 @@ public class UserApp {
         this.mot_de_passe = mot_de_passe;
     }
 
-    public void setAgent(Agent agent) {
+    public void setAgent(Patrouilleur agent) {
         this.agent = agent;
     }
 }
