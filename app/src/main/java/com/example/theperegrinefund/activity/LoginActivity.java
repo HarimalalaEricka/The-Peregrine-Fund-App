@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.security.ConfigLoader;
 import com.example.security.CryptoUtils;
+import com.example.theperegrinefund.security.CredentialUtil;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -32,9 +33,9 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 // Charger la clé depuis le fichier de configuration
                 String cle = ConfigLoader.getSecretKey();
-
+                String combined = CredentialUtil.combineNamePassword(name, password);
                 // Utiliser CryptoUtils pour chiffrer le mot de passe
-                CryptoUtils crypto = new CryptoUtils(password);
+                CryptoUtils crypto = new CryptoUtils(combined);
                 String chiffre = crypto.chiffrer(cle);
 
                 // Démonstration : déchiffrer à nouveau

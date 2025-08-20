@@ -1,4 +1,4 @@
-package com.example.security;
+package com.example.theperegrinefund.security;
 
 import android.util.Base64;
 import javax.crypto.Cipher;

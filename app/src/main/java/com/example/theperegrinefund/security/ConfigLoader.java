@@ -1,4 +1,4 @@
-package com.example.security;
+package com.example.theperegrinefund.security;
 
 import java.io.InputStream;
 import java.util.Properties;
