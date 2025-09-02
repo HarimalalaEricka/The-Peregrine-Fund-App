@@ -9,10 +9,14 @@ CREATE TABLE Message(
    Direction VARCHAR(20) NOT NULL,
    Elements_visibles VARCHAR(100),
    Degats VARCHAR(100),
+   intervention INT NOT NULL,
+   renfort LOGICAL,
+   longitude DECIMAL(15,2),
+   latitude DECIMAL(15,2),
+   Id_Intervention INT NOT NULL,
    Id_UserApp INT NOT NULL,
-   id_centrale INT NOT NULL,
    PRIMARY KEY(Id_Message),
    UNIQUE(Date_signalement),
+   FOREIGN KEY(Id_Intervention) REFERENCES Intervention(Id_Intervention),
    FOREIGN KEY(Id_UserApp) REFERENCES UserApp(Id_UserApp)
 );
-

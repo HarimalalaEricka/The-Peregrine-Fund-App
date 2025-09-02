@@ -29,10 +29,16 @@ android {
 }
 
 dependencies {
-
+    // Dépendances Android de base
     implementation libs.appcompat
     implementation libs.material
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+
+    // Ajout de OkHttp
+    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
+
+    // Ajout de Gson
+    implementation 'com.google.code.gson:gson:2.10.1'
 }

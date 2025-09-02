@@ -1,12 +1,10 @@
 package com.example.theperegrinefund;
 
-import java.util.Date;
-
 public class Message {
-
     private int idMessage;
-    private Date dateCommencement;
-    private Date dateSignalement;
+    private String uuidMessage;
+    private String dateCommencement;
+    private String dateSignalement;
     private String contenuCode;
     private String pointRepere;
     private String description;
@@ -14,100 +12,148 @@ public class Message {
     private String direction;
     private String elementsVisibles;
     private String degats;
-    private UserApp user;
+    private int intervention;
+    private int renfort;
+    private double longitude;
+    private double latitude;
+    private int idIntervention;
+    private int idUserApp;
 
-    public Message(int idMessage, Date dateCommencement, Date dateSignalement, String contenuCode,
-                   String pointRepere, String description, double surfaceApproximative,
-                   String direction, String elementsVisibles, String degats,
-                   UserApp user) {
+    // --- Getters et Setters ---
 
-                    this.idMessage = idMessage;
+    public int getIdMessage() {
+        return idMessage;
+    }
+
+    public void setIdMessage(int idMessage) {
+        this.idMessage = idMessage;
+    }
+
+    public String getUuidMessage() {
+        return uuidMessage;
+    }
+
+    public void setUuidMessage(String uuidMessage) {
+        this.uuidMessage = uuidMessage;
+    }
+
+    public String getDateCommencement() {
+        return dateCommencement;
+    }
+
+    public void setDateCommencement(String dateCommencement) {
         this.dateCommencement = dateCommencement;
+    }
+
+    public String getDateSignalement() {
+        return dateSignalement;
+    }
+
+    public void setDateSignalement(String dateSignalement) {
         this.dateSignalement = dateSignalement;
+    }
+
+    public String getContenuCode() {
+        return contenuCode;
+    }
+
+    public void setContenuCode(String contenuCode) {
         this.contenuCode = contenuCode;
+    }
+
+    public String getPointRepere() {
+        return pointRepere;
+    }
+
+    public void setPointRepere(String pointRepere) {
         this.pointRepere = pointRepere;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
         this.description = description;
+    }
+
+    public double getSurfaceApproximative() {
+        return surfaceApproximative;
+    }
+
+    public void setSurfaceApproximative(double surfaceApproximative) {
         this.surfaceApproximative = surfaceApproximative;
+    }
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public void setDirection(String direction) {
         this.direction = direction;
+    }
+
+    public String getElementsVisibles() {
+        return elementsVisibles;
+    }
+
+    public void setElementsVisibles(String elementsVisibles) {
         this.elementsVisibles = elementsVisibles;
+    }
+
+    public String getDegats() {
+        return degats;
+    }
+
+    public void setDegats(String degats) {
         this.degats = degats;
-        this.user = user;
     }
 
-    public int getIdMessage() { 
-        return idMessage; 
-    }
-    public void setIdMessage(int idMessage) { 
-        this.idMessage = idMessage; 
+    public int getIntervention() {
+        return intervention;
     }
 
-    public Date getDateCommencement() { 
-        return dateCommencement; 
-    }
-    public void setDateCommencement(Date dateCommencement) { 
-        this.dateCommencement = dateCommencement; 
+    public void setIntervention(int intervention) {
+        this.intervention = intervention;
     }
 
-    public Date getDateSignalement() { 
-        return dateSignalement; 
-    }
-    public void setDateSignalement(Date dateSignalement) { 
-        this.dateSignalement = dateSignalement; 
+    public int getRenfort() {
+        return renfort;
     }
 
-    public String getContenuCode() { 
-        return contenuCode; 
-    }
-    public void setContenuCode(String contenuCode) { 
-        this.contenuCode = contenuCode; 
+    public void setRenfort(int renfort) {
+        this.renfort = renfort;
     }
 
-    public String getPointRepere() { 
-        return pointRepere; 
-    }
-    public void setPointRepere(String pointRepere) { 
-        this.pointRepere = pointRepere; 
+    public double getLongitude() {
+        return longitude;
     }
 
-    public String getDescription() { 
-        return description; 
-    }
-    public void setDescription(String description) { 
-        this.description = description; 
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 
-    public double getSurfaceApproximative() { 
-        return surfaceApproximative; 
-    }
-    public void setSurfaceApproximative(double surfaceApproximative) { 
-        this.surfaceApproximative = surfaceApproximative; 
+    public double getLatitude() {
+        return latitude;
     }
 
-    public String getDirection() { 
-        return direction; 
-    }
-    public void setDirection(String direction) { 
-        this.direction = direction; 
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
     }
 
-    public String getElementsVisibles() { 
-        return elementsVisibles; 
-    }
-    public void setElementsVisibles(String elementsVisibles) { 
-        this.elementsVisibles = elementsVisibles; 
+    public int getIdIntervention() {
+        return idIntervention;
     }
 
-    public String getDegats() { 
-        return degats; 
-    }
-    public void setDegats(String degats) { 
-        this.degats = degats; 
+    public void setIdIntervention(int idIntervention) {
+        this.idIntervention = idIntervention;
     }
 
-    public UserApp getUser() { 
-        return user; 
+    public int getIdUserApp() {
+        return idUserApp;
     }
-    public void setUser(UserApp user) { 
-        this.user = user; 
+
+    public void setIdUserApp(int idUserApp) {
+        this.idUserApp = idUserApp;
     }
 }
