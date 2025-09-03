@@ -68,7 +68,6 @@ public class MessageDao {
             msg.setElementsVisibles(cursor.getString(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_ELEMENTS_VISIBLES)));
             msg.setDegats(cursor.getString(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_DEGATS)));
             msg.setContenuCode(cursor.getString(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_CONTENU_CODE)));
-            msg.setIntervention(cursor.getInt(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_INTERVENTION)));
             msg.setRenfort(cursor.getInt(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_RENFORT)));
             msg.setLongitude(cursor.getDouble(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_LONGITUDE)));
             msg.setLatitude(cursor.getDouble(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_LATITUDE)));

@@ -5,8 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.example.app.models.HistoriqueMessageStatus;
-
+import com.example.theperegrinefund.HistoriqueMessageStatus;
+import com.example.theperegrinefund.MyDatabaseHelper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +23,9 @@ public class HistoriqueMessageStatusDao {
         values.put("date_changement", h.getDateChangement().toString());
         values.put("Id_status_message", h.getIdStatusMessage());
         values.put("Id_Message", h.getIdMessage());
-        return db.insert("historique_message_status", null, values);
+        long id = db.insert("historique_message_status", null, values);
+        db.close();
+        return id;
     }
 
     public List<HistoriqueMessageStatus> getAllHistorique() {
@@ -42,6 +44,7 @@ public class HistoriqueMessageStatusDao {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
         return list;
     }
 }

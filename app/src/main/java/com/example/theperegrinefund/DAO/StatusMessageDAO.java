@@ -5,7 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.example.app.models.StatusMessage;
+import com.example.theperegrinefund.StatusMessage;
+import com.example.theperegrinefund.MyDatabaseHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,9 @@ public class StatusMessageDao {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("status", status.getStatus());
-        return db.insert("status_message", null, values);
+        long id = db.insert("status_message", null, values);
+        db.close();
+        return id;
     }
 
     public List<StatusMessage> getAllStatus() {
@@ -38,6 +41,7 @@ public class StatusMessageDao {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
         return list;
     }
 }

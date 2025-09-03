@@ -1,5 +1,4 @@
-package com.example.app.models;
-
+package com.example.theperegrinefund;
 public class Intervention {
     private int idIntervention;
     private String intervention;

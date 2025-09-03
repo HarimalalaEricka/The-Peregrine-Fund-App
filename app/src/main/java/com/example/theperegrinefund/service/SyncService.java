@@ -5,49 +5,83 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import com.example.theperegrinefund.StatusMessage;
+import com.example.theperegrinefund.Intervention;
+import com.example.theperegrinefund.HistoriqueMessageStatus;
+import com.example.theperegrinefund.Message;
+import com.example.theperegrinefund.dao.MessageDao;
+import com.example.theperegrinefund.dao.InterventionDao;
+import com.example.theperegrinefund.dao.StatusMessageDao;
+import com.example.theperegrinefund.dao.HistoriqueMessageStatusDao;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 
 public class SyncService {
-   private static final String BASE_URL = "https://e560f407f8a4.ngrok-free.app/sync";
+    private static final String BASE_URL = "https://9f4616fb94ba.ngrok-free.app/sync";
     private OkHttpClient client;
     private Gson gson;
     private MessageDao messageDao;
+    private InterventionDao interventionDao;
+    private StatusMessageDao statusDao;
+    private HistoriqueMessageStatusDao historiqueDao;
 
     public SyncService(Context context) {
         client = new OkHttpClient();
         gson = new Gson();
         messageDao = new MessageDao(context);
+        interventionDao = new InterventionDao(context);
+        statusDao = new StatusMessageDao(context);
+        historiqueDao = new HistoriqueMessageStatusDao(context);
     }
 
-    // Récupérer les messages du serveur
+    // --- Messages ---
     public void downloadMessages(int idUser) {
         String url = BASE_URL + "/download/" + idUser;
+        executeDownload(url, Message.class, messageDao::insertMessage);
+    }
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+    // --- Interventions ---
+    public void downloadInterventions() {
+        String url = BASE_URL + "/interventions";
+        executeDownload(url, Intervention.class, interventionDao::insertIntervention);
+    }
+
+    // --- Status Messages ---
+    public void downloadStatusMessages() {
+        String url = BASE_URL + "/status";
+        executeDownload(url, StatusMessage.class, statusDao::insertStatus);
+    }
+
+    // --- Historique Message Status ---
+    public void downloadHistoriqueMessages(int idUser) {
+        String url = BASE_URL + "/historique/" + idUser;
+        executeDownload(url, HistoriqueMessageStatus.class, historiqueDao::insertHistorique);
+    }
+
+    // Méthode générique pour télécharger et insérer
+    private <T> void executeDownload(String url, Class<T> clazz, java.util.function.Consumer<T> insertFunction) {
+        Request request = new Request.Builder().url(url).build();
 
         new Thread(() -> {
             try {
                 Response response = client.newCall(request).execute();
                 if (response.isSuccessful() && response.body() != null) {
                     String json = response.body().string();
-                    Type listType = new TypeToken<List<Message>>() {}.getType();
-                    List<Message> messages = gson.fromJson(json, listType);
+                    Type listType = TypeToken.getParameterized(List.class, clazz).getType();
+                    List<T> items = gson.fromJson(json, listType);
 
-                    for (Message msg : messages) {
-                        messageDao.insertMessage(msg);
+                    for (T item : items) {
+                        insertFunction.accept(item);
                     }
 
-                    Log.d("SYNC", "Messages téléchargés et insérés : " + messages.size());
+                    Log.d("SYNC", "Téléchargement terminé : " + items.size() + " éléments de " + clazz.getSimpleName());
                 } else {
-                    Log.e("SYNC", "Erreur HTTP : " + response.code());
+                    Log.e("SYNC", "Erreur HTTP : " + response.code() + " pour " + clazz.getSimpleName());
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -5,7 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.example.app.models.Intervention;
+import com.example.theperegrinefund.Intervention;
+import com.example.theperegrinefund.MyDatabaseHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,9 @@ public class InterventionDao {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("intervention", intervention.getIntervention());
-        return db.insert("Intervention", null, values);
+        long id = db.insert("Intervention", null, values);
+        db.close();
+        return id;
     }
 
     public List<Intervention> getAllInterventions() {
@@ -38,6 +41,7 @@ public class InterventionDao {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
         return list;
     }
 }
