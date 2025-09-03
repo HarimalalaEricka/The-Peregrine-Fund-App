@@ -1,6 +1,13 @@
 C:\Users\user\Documents\Stage\The-Peregrine-Fund-App\src\main\java\com\example\serveur\controller\ServeurController.java
+C:\Users\user\Documents\Stage\The-Peregrine-Fund-App\src\main\java\com\example\serveur\model\Alerte.java
+C:\Users\user\Documents\Stage\The-Peregrine-Fund-App\src\main\java\com\example\serveur\model\Message.java
+C:\Users\user\Documents\Stage\The-Peregrine-Fund-App\src\main\java\com\example\serveur\model\Patrouilleurs.java
 C:\Users\user\Documents\Stage\The-Peregrine-Fund-App\src\main\java\com\example\serveur\model\Serveur.java
+C:\Users\user\Documents\Stage\The-Peregrine-Fund-App\src\main\java\com\example\serveur\model\Site.java
 C:\Users\user\Documents\Stage\The-Peregrine-Fund-App\src\main\java\com\example\serveur\model\SmsRequest.java
 C:\Users\user\Documents\Stage\The-Peregrine-Fund-App\src\main\java\com\example\serveur\model\SmsResponse.java
+C:\Users\user\Documents\Stage\The-Peregrine-Fund-App\src\main\java\com\example\serveur\model\TypeAlerte.java
+C:\Users\user\Documents\Stage\The-Peregrine-Fund-App\src\main\java\com\example\serveur\model\UserApp.java
+C:\Users\user\Documents\Stage\The-Peregrine-Fund-App\src\main\java\com\example\serveur\repository\UserAppRepository.java
 C:\Users\user\Documents\Stage\The-Peregrine-Fund-App\src\main\java\com\example\serveur\ServeurApplication.java
 C:\Users\user\Documents\Stage\The-Peregrine-Fund-App\src\main\java\com\example\serveur\util\EncryptionUtil.java
