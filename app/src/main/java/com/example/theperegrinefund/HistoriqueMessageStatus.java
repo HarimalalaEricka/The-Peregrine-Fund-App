@@ -1,45 +1,52 @@
 package com.example.theperegrinefund;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 public class HistoriqueMessageStatus {
     private int idHistorique;
-    private Date date_changement;
-    private StatusMessage status;
-    private Message message;
-    public HistoriqueMessageStatus( int id, Date changement, StatusMessage status, Message message)
-    {
-        this.idHistorique = id;
-        this.date_changement = changement;
-        this.status = status;
-        this.message = message;
+    private LocalDateTime dateChangement;
+    private int idStatusMessage; // clé étrangère vers StatusMessage
+    private int idMessage;       // clé étrangère vers Message
+
+    public HistoriqueMessageStatus() {
     }
-    public int getIdHistorique()
-    {
-        return this.idHistorique;
+
+    public HistoriqueMessageStatus(int idHistorique, LocalDateTime dateChangement, int idStatusMessage, int idMessage) {
+        this.idHistorique = idHistorique;
+        this.dateChangement = dateChangement;
+        this.idStatusMessage = idStatusMessage;
+        this.idMessage = idMessage;
     }
-    public Date getDateChangement()
-    {
-        return this.date_changement;
+
+    public int getIdHistorique() {
+        return idHistorique;
     }
-    public void setDateChangement( Date date)
-    {
-        this.date_changement = date;
+
+    public void setIdHistorique(int idHistorique) {
+        this.idHistorique = idHistorique;
     }
-    public StatusMessage getStatus()
-    {
-        return this.status;
+
+    public LocalDateTime getDateChangement() {
+        return dateChangement;
     }
-    public void setStatus( StatusMessage status)
-    {
-        this.status = status;
+
+    public void setDateChangement(LocalDateTime dateChangement) {
+        this.dateChangement = dateChangement;
     }
-    public Message getMessage()
-    {
-        return this.message;
+
+    public int getIdStatusMessage() {
+        return idStatusMessage;
     }
-    public void setMessage( Message mess)
-    {
-        this.message = message;
+
+    public void setIdStatusMessage(int idStatusMessage) {
+        this.idStatusMessage = idStatusMessage;
+    }
+
+    public int getIdMessage() {
+        return idMessage;
+    }
+
+    public void setIdMessage(int idMessage) {
+        this.idMessage = idMessage;
     }
 }

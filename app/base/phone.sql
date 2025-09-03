@@ -20,3 +20,19 @@ CREATE TABLE Message(
    FOREIGN KEY(Id_Intervention) REFERENCES Intervention(Id_Intervention),
    FOREIGN KEY(Id_UserApp) REFERENCES UserApp(Id_UserApp)
 );
+CREATE TABLE status_message(
+   Id_status_message SERIAL PRIMARY KEY,
+   status VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE historique_message_status(
+   Id_historique SERIAL PRIMARY KEY,
+   date_changement TIMESTAMP,
+   Id_status_message INT NOT NULL REFERENCES status_message(Id_status_message),
+   Id_Message INT NOT NULL REFERENCES Message(Id_Message)
+);
+
+CREATE TABLE Intervention(
+   Id_Intervention SERIAL PRIMARY KEY,
+   intervention VARCHAR(50)
+);
