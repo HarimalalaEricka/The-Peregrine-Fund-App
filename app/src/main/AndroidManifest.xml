@@ -40,6 +40,12 @@
             android:name=".MainActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ThePeregrineFund.NoActionBar"
+            android:screenOrientation="portrait" />
+
 
     </application>
 
