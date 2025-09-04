@@ -4,13 +4,14 @@ public class UserApp {
     private int idUserApp;
     private String login;
     private String mot_de_passe;
-    private Agent agent;
+    private Patrouilleur agent;
+    private String phoneNumber;
+    private String content;
 
-    public UserApp(int idUserApp, String login, String mot_de_passe, Agent agent) {
-        this.idUserApp = idUserApp;
-        this.login = login;
-        this.mot_de_passe = mot_de_passe;
-        this.agent = agent;
+
+    public UserApp(String phoneNumber, String content) {
+        this.phoneNumber = phoneNumber;
+        this.content = content;
     }
     public int getIdUserApp() {
         return idUserApp;
@@ -24,7 +25,7 @@ public class UserApp {
         return mot_de_passe;
     }
 
-    public Agent getAgent() {
+    public Patrouilleur getAgent() {
         return agent;
     }
 
@@ -40,7 +41,18 @@ public class UserApp {
         this.mot_de_passe = mot_de_passe;
     }
 
-    public void setAgent(Agent agent) {
+    public void setAgent(Patrouilleur agent) {
         this.agent = agent;
+    }
+     public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public String getContent() {
+        return content;
+    }
+    public boolean isValid() {
+        return phoneNumber != null && !phoneNumber.isEmpty()
+                && content != null && !content.isEmpty();
     }
 }

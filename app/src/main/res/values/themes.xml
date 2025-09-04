@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Thème principal de l'application -->
     <style name="Theme.ThePeregrineFund" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Couleurs principales -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
-
         <!-- Couleurs secondaires -->
         <item name="colorSecondary">@color/colorSecondary</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>

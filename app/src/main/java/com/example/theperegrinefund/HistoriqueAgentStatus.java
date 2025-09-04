@@ -6,8 +6,8 @@ public class HistoriqueAgentStatus {
     private int idHistorique;
     private Date date_changement;
     private StatusAgent status;
-    private Agent agent;
-    public HistoriqueAgentStatus( int id, Date changement, StatusAgent status, Agent agent)
+    private Patrouilleur agent;
+    public HistoriqueAgentStatus( int id, Date changement, StatusAgent status, Patrouilleur agent)
     {
         this.idHistorique = id;
         this.date_changement = changement;
@@ -34,11 +34,11 @@ public class HistoriqueAgentStatus {
     {
         this.status = status;
     }
-    public Agent getAgent()
+    public Patrouilleur getAgent()
     {
         return this.agent;
     }
-    public void setAgent( Agent agent)
+    public void setAgent( Patrouilleur agent)
     {
         this.agent = agent;
     }
