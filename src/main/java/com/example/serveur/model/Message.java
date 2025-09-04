@@ -1,68 +1,84 @@
 package com.example.serveur.model;
 
 import jakarta.persistence.*;
-import java.util.Date;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "message")
 public class Message {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idMessage;
-
-    private Date dateSignalement;
-    private String description;
+    @Column(name = "id_message")
+    private Long idMessage;
+    
+    @Column(name = "date_commencement", nullable = false)
+    private LocalDateTime dateCommencement;
+    
+    @Column(name = "date_signalement", nullable = false, unique = true)
+    private LocalDateTime dateSignalement;
+    
+    @Column(name = "pointrepere")
     private String pointRepere;
-
-    @ManyToOne
-    @JoinColumn(name = "id_user_app") // colonne dans la table
-    private UserApp user;
-
-    // Champs optionnels
-    private Double surfaceApproximative;
+    
+    @Column(name = "surface_approximative", precision = 15, scale = 2)
+    private BigDecimal surfaceApproximative;
+    
+    @Column(name = "description")
+    private String description;
+    
+    @Column(name = "direction", nullable = false, length = 20)
     private String direction;
-    private String elementsVisibles;
-    private String degats;
-    private String contenuCode;
-
-    public Message() {}  // constructeur vide pour JPA
-
-    public Message(int idMessage, Date dateSignalement, String description, String pointRepere, UserApp user) {
-        this.idMessage = idMessage;
-        this.dateSignalement = dateSignalement;
-        this.description = description;
-        this.pointRepere = pointRepere;
-        this.user = user;
-    }
-
-    // --- Getters & Setters ---
-    public int getIdMessage() { return idMessage; }
-    public void setIdMessage(int idMessage) { this.idMessage = idMessage; }
-
-    public Date getDateSignalement() { return dateSignalement; }
-    public void setDateSignalement(Date dateSignalement) { this.dateSignalement = dateSignalement; }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
+    
+    @Column(name = "renfort")
+    private Boolean renfort;
+    
+    @Column(name = "longitude", precision = 15, scale = 8)
+    private BigDecimal longitude;
+    
+    @Column(name = "latitude", precision = 15, scale = 8)
+    private BigDecimal latitude;
+    
+    @Column(name = "id_intervention", nullable = false)
+    private Integer idIntervention;
+    
+    @Column(name = "iduserapp", nullable = false)
+    private Integer idUserApp;
+    
+    // Getters et setters
+    public Long getIdMessage() { return idMessage; }
+    public void setIdMessage(Long idMessage) { this.idMessage = idMessage; }
+    
+    public LocalDateTime getDateCommencement() { return dateCommencement; }
+    public void setDateCommencement(LocalDateTime dateCommencement) { this.dateCommencement = dateCommencement; }
+    
+    public LocalDateTime getDateSignalement() { return dateSignalement; }
+    public void setDateSignalement(LocalDateTime dateSignalement) { this.dateSignalement = dateSignalement; }
+    
     public String getPointRepere() { return pointRepere; }
     public void setPointRepere(String pointRepere) { this.pointRepere = pointRepere; }
-
-    public UserApp getUser() { return user; }
-    public void setUser(UserApp user) { this.user = user; }
-
-    public Double getSurfaceApproximative() { return surfaceApproximative; }
-    public void setSurfaceApproximative(Double surfaceApproximative) { this.surfaceApproximative = surfaceApproximative; }
-
+    
+    public BigDecimal getSurfaceApproximative() { return surfaceApproximative; }
+    public void setSurfaceApproximative(BigDecimal surfaceApproximative) { this.surfaceApproximative = surfaceApproximative; }
+    
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    
     public String getDirection() { return direction; }
     public void setDirection(String direction) { this.direction = direction; }
-
-    public String getElementsVisibles() { return elementsVisibles; }
-    public void setElementsVisibles(String elementsVisibles) { this.elementsVisibles = elementsVisibles; }
-
-    public String getDegats() { return degats; }
-    public void setDegats(String degats) { this.degats = degats; }
-
-    public String getContenuCode() { return contenuCode; }
-    public void setContenuCode(String contenuCode) { this.contenuCode = contenuCode; }
+    
+    public Boolean getRenfort() { return renfort; }
+    public void setRenfort(Boolean renfort) { this.renfort = renfort; }
+    
+    public BigDecimal getLongitude() { return longitude; }
+    public void setLongitude(BigDecimal longitude) { this.longitude = longitude; }
+    
+    public BigDecimal getLatitude() { return latitude; }
+    public void setLatitude(BigDecimal latitude) { this.latitude = latitude; }
+    
+    public Integer getIdIntervention() { return idIntervention; }
+    public void setIdIntervention(Integer idIntervention) { this.idIntervention = idIntervention; }
+    
+    public Integer getIdUserApp() { return idUserApp; }
+    public void setIdUserApp(Integer idUserApp) { this.idUserApp = idUserApp; }
 }

@@ -2,17 +2,19 @@ package com.example.serveur.util;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-
+@Component
 public class EncryptionUtil {
 
     private static final String ALGORITHM = "AES";
     private final String secretKey;
 
     // Le constructeur reçoit la clé depuis la configuration
-    public EncryptionUtil(String secretKey) {
+    public EncryptionUtil(@Value("${encryption.secret-key}") String secretKey) {
         this.secretKey = secretKey;
     }
 
@@ -22,10 +24,9 @@ public class EncryptionUtil {
         }
         
         // Nettoyer la chaîne des caractères problématiques
-        String cleaned = str.trim()
-                           .replace(" ", "")
-                           .replace("+", "-")  // Remplace + par - pour URL safety
-                           .replace("/", "_"); // Remplace / par _ pour URL safety
+        String cleaned = str.replaceAll("\\s+", "")   // supprime tous les espaces / retours ligne
+        .replace("-", "+")
+        .replace("_", "/");
         
         // Vérifier la longueur (doit être multiple de 4)
         if (cleaned.length() % 4 != 0) {
@@ -58,10 +59,9 @@ public class EncryptionUtil {
     public String dechiffrer(String texteChiffre) throws Exception {
         try {
             // Nettoyer et préparer le texte chiffré
-            String texteNettoye = texteChiffre.trim()
-                                            .replace(" ", "")
-                                            .replace("-", "+")  // Rétablir les caractères Base64 standard
-                                            .replace("_", "/");
+            String texteNettoye = texteChiffre.replaceAll("\\s+", "")   // supprime tous les espaces / retours ligne
+            .replace("-", "+")
+            .replace("_", "/");
             
             // Ajouter le padding manquant si nécessaire
             if (texteNettoye.length() % 4 != 0) {
