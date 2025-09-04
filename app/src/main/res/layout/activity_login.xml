@@ -51,9 +51,7 @@
                     android:textSize="18sp"
                     android:textStyle="normal"
                     android:gravity="start" />
-
             </LinearLayout>
-
         </LinearLayout>
 
         <!-- Image centrale décorative -->
@@ -127,7 +125,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-
         <!-- Bouton Sign In -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_sign_in"
@@ -146,6 +143,16 @@
             app:elevation="4dp"
             android:stateListAnimator="@null" />
 
-    </LinearLayout>
+        <!-- TextView pour afficher le SMS déchiffré -->
+        <TextView
+            android:id="@+id/text_view_sms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:padding="8dp"
+            android:background="@android:color/white"/>
 
+    </LinearLayout>
 </ScrollView>

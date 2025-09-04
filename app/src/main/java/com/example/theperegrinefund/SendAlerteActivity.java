@@ -1,4 +1,5 @@
 package com.example.theperegrinefund;
+import android.os.Bundle;
 
 public class SendAlerteActivity extends BaseActivity 
 {
