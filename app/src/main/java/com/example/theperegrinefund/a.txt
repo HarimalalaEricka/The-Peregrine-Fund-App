@@ -1,0 +1,198 @@
+.\gradlew assembleDebug
+adb install -r .\app\build\outputs\apk\debug\app-debug.apk
+public class SyncService {
+    private static final String BASE_URL = "https://d18649688661.ngrok-free.app/sync";
+    private OkHttpClient client;
+    private Gson gson;
+    private MessageDao messageDao;
+
+    public SyncService(Context context) {
+        client = new OkHttpClient();
+        gson = new Gson();
+        messageDao = new MessageDao(context);
+    }
+
+    public void downloadMessages(int idUser, Runnable onComplete) {
+        String url = BASE_URL + "/download/" + idUser;
+
+        new Thread(() -> {
+            try {
+                Request request = new Request.Builder().url(url).build();
+                Response response = client.newCall(request).execute();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    String json = response.body().string();
+                    
+                    // Vérifier si le JSON n'est pas vide
+                    if (json.trim().isEmpty()) {
+                        Log.w("SYNC", "JSON vide reçu du serveur");
+                        return;
+                    }
+
+                    Type listType = new TypeToken<List<Message>>() {}.getType();
+                    List<Message> messages = gson.fromJson(json, listType);
+
+                    if (messages != null) {
+                        for (Message msg : messages) {
+                            messageDao.insertMessage(msg);
+                        }
+                        Log.d("SYNC", "Messages téléchargés et insérés : " + messages.size());
+                    } else {
+                        Log.e("SYNC", "Échec de parsing JSON : liste null");
+                    }
+                } else {
+                    Log.e("SYNC", "Erreur HTTP : " + response.code());
+                }
+            } catch (Exception e) {
+                Log.e("SYNC", "Exception lors du téléchargement", e);
+            } finally {
+                if (onComplete != null) {
+                    // Mettre à jour l'UI après le téléchargement
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(onComplete);
+                }
+            }
+        }).start();
+    }
+}
+https://d18649688661.ngrok-free.app/sync
+
+
+package com.example.theperegrinefund.service;
+
+import android.content.Context;
+import android.util.Log;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import com.example.theperegrinefund.Message;
+import com.example.theperegrinefund.Intervention;
+import com.example.theperegrinefund.StatusMessage;
+import com.example.theperegrinefund.HistoriqueMessageStatus;
+
+import com.example.theperegrinefund.dao.MessageDao;
+import com.example.theperegrinefund.dao.InterventionDao;
+import com.example.theperegrinefund.dao.StatusMessageDao;
+import com.example.theperegrinefund.dao.HistoriqueMessageStatusDao;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+public class SyncService {
+    private static final String TAG = "SyncService";
+    private static final String BASE_URL = "https://9f4616fb94ba.ngrok-free.app/sync";
+
+    private final OkHttpClient client;
+    private final Gson gson;
+    private final MessageDao messageDao;
+    private final InterventionDao interventionDao;
+    private final StatusMessageDao statusDao;
+    private final HistoriqueMessageStatusDao historiqueDao;
+
+    public SyncService(Context context) {
+        client = new OkHttpClient();
+        gson = new Gson();
+        messageDao = new MessageDao(context);
+        interventionDao = new InterventionDao(context);
+        statusDao = new StatusMessageDao(context);
+        historiqueDao = new HistoriqueMessageStatusDao(context);
+    }
+
+    public interface SyncCallback<T> {
+        void onComplete(List<T> items);
+        void onError(Exception e);
+    }
+
+    // --- Messages ---
+    public void downloadMessages(int idUser, SyncCallback<Message> callback) {
+        String url = BASE_URL + "/download/" + idUser;
+        downloadGeneric(url, Message.class, item -> {
+            item.setIdUserApp(idUser);
+            messageDao.insertMessage(item);
+        }, callback);
+    }
+
+    // --- Interventions ---
+    public void downloadInterventions(SyncCallback<Intervention> callback) {
+        String url = BASE_URL + "/interventions";
+        downloadGeneric(url, Intervention.class, interventionDao::insertIntervention, callback);
+    }
+
+    // --- Status Messages ---
+    public void downloadStatusMessages(SyncCallback<StatusMessage> callback) {
+        String url = BASE_URL + "/status";
+        downloadGeneric(url, StatusMessage.class, statusDao::insertStatus, callback);
+    }
+
+    // --- Historique Messages ---
+    public void downloadHistoriqueMessages(int idUser, SyncCallback<HistoriqueMessageStatus> callback) {
+        String url = BASE_URL + "/historique/" + idUser;
+        downloadGeneric(url, HistoriqueMessageStatus.class, historiqueDao::insertHistorique, callback);
+    }
+
+    // Méthode générique avec callback
+    private <T> void downloadGeneric(String url, Class<T> clazz, java.util.function.Consumer<T> insertFunction, SyncCallback<T> callback) {
+        Request request = new Request.Builder().url(url).build();
+
+        new Thread(() -> {
+            try {
+                Response response = client.newCall(request).execute();
+                if (response.isSuccessful() && response.body() != null) {
+                    String json = response.body().string();
+                    Type listType = TypeToken.getParameterized(List.class, clazz).getType();
+                    List<T> items = gson.fromJson(json, listType);
+
+                    for (T item : items) {
+                        insertFunction.accept(item);
+                    }
+
+                    Log.d(TAG, clazz.getSimpleName() + " téléchargé : " + items.size());
+                    if (callback != null) callback.onComplete(items);
+                } else {
+                    Log.e(TAG, "Erreur HTTP : " + response.code() + " pour " + clazz.getSimpleName());
+                    if (callback != null) callback.onError(new IOException("HTTP " + response.code()));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (callback != null) callback.onError(e);
+            }
+        }).start();
+    }
+}
+
+   /*  public void downloadMessages(int idUser, SyncCallback callback) {
+            String url = BASE_URL + "/download/" + idUser;
+
+            Request request = new Request.Builder().url(url).build();
+
+            new Thread(() -> {
+                try {
+                    Response response = client.newCall(request).execute();
+                    if (response.isSuccessful() && response.body() != null) {
+                        String json = response.body().string();
+                        Type listType = new TypeToken<List<Message>>() {}.getType();
+                        List<Message> messages = gson.fromJson(json, listType);
+
+                        for (Message msg : messages) {
+                            msg.setIdUserApp(idUser); // lier à l'utilisateur local
+                            messageDao.insertMessage(msg);
+                        }
+
+                        Log.d("SYNC", "Messages téléchargés : " + messages.size());
+                        if (callback != null) callback.onComplete(messages);
+
+                    } else {
+                        Log.e("SYNC", "Erreur HTTP : " + response.code());
+                        if (callback != null) callback.onError(new IOException("HTTP " + response.code()));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    if (callback != null) callback.onError(e);
+                }
+            }).start();
+        }*/

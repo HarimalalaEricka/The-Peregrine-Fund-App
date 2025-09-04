@@ -1,69 +1,61 @@
 package com.example.theperegrinefund;
 
-import java.util.Date;
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-import android.util.Base64;
-
+import com.google.gson.annotations.SerializedName;
 public class Message {
 
     private int idMessage;
-    private Date dateSignalement;
-    private String description;
+    private String dateCommencement;
+    private String dateSignalement;
     private String pointRepere;
-    private UserApp user;
-
-    // Champs optionnels
-    private Double surfaceApproximative;
+    private double surfaceApproximative;
+    private String description;
     private String direction;
-    private String elementsVisibles;
-    private String degats;
-    private String contenuCode;
+    private boolean renfort;
+    private double longitude;
+    private double latitude;
+    private int idIntervention;
 
-    // Constructeur principal
-    public Message(int idMessage, Date dateSignalement, String description, String pointRepere, UserApp user) {
-        this.idMessage = idMessage;
-        this.dateSignalement = dateSignalement;
-        this.description = description;
-        this.pointRepere = pointRepere;
-        this.user = user;
-    }
+    // Champ utilisé côté mobile pour la synchro
+    private int idUserApp;
 
-    public String chiffrer(String cleSecrete) throws Exception {
-        SecretKeySpec key = new SecretKeySpec(cleSecrete.getBytes("UTF-8"), "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, key);
-        byte[] encrypted = cipher.doFinal(description.getBytes("UTF-8"));
-        return Base64.encodeToString(encrypted, Base64.DEFAULT);
-    }
+   
 
-    public String dechiffrer(String cleSecrete, String texteChiffre) throws Exception {
-        SecretKeySpec key = new SecretKeySpec(cleSecrete.getBytes("UTF-8"), "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, key);
-        byte[] decoded = Base64.decode(texteChiffre, Base64.DEFAULT);
-        byte[] decrypted = cipher.doFinal(decoded);
-        return new String(decrypted, "UTF-8");
-    }
-
+    // --- Getters et setters ---
     public int getIdMessage() { return idMessage; }
     public void setIdMessage(int idMessage) { this.idMessage = idMessage; }
-    public Date getDateSignalement() { return dateSignalement; }
-    public void setDateSignalement(Date dateSignalement) { this.dateSignalement = dateSignalement; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+
+    public String getDateCommencement() { return dateCommencement; }
+    public void setDateCommencement(String dateCommencement) { this.dateCommencement = dateCommencement; }
+
+    public String getDateSignalement() { return dateSignalement; }
+    public void setDateSignalement(String dateSignalement) { this.dateSignalement = dateSignalement; }
+
     public String getPointRepere() { return pointRepere; }
     public void setPointRepere(String pointRepere) { this.pointRepere = pointRepere; }
-    public UserApp getUser() { return user; }
-    public void setUser(UserApp user) { this.user = user; }
-    public Double getSurfaceApproximative() { return surfaceApproximative; }
-    public void setSurfaceApproximative(Double surfaceApproximative) { this.surfaceApproximative = surfaceApproximative; }
+
+    public double getSurfaceApproximative() { return surfaceApproximative; }
+    public void setSurfaceApproximative(double surfaceApproximative) { this.surfaceApproximative = surfaceApproximative; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
     public String getDirection() { return direction; }
     public void setDirection(String direction) { this.direction = direction; }
-    public String getElementsVisibles() { return elementsVisibles; }
-    public void setElementsVisibles(String elementsVisibles) { this.elementsVisibles = elementsVisibles; }
-    public String getDegats() { return degats; }
-    public void setDegats(String degats) { this.degats = degats; }
-    public String getContenuCode() { return contenuCode; }
-    public void setContenuCode(String contenuCode) { this.contenuCode = contenuCode; }
+
+    public boolean isRenfort() { return renfort; }
+    public void setRenfort(boolean renfort) { this.renfort = renfort; }
+
+    public double getLongitude() { return longitude; }
+    public void setLongitude(double longitude) { this.longitude = longitude; }
+
+    public double getLatitude() { return latitude; }
+    public void setLatitude(double latitude) { this.latitude = latitude; }
+
+    public int getIdIntervention() { return idIntervention; }
+    public void setIdIntervention(int idIntervention) { this.idIntervention = idIntervention; }
+
+    public int getIdUserApp() { return idUserApp; }
+    public void setIdUserApp(int idUserApp) { this.idUserApp = idUserApp; }
+
+  
 }

@@ -1,45 +1,71 @@
 package com.example.theperegrinefund;
 
-import java.sql.Date;
-
 public class HistoriqueMessageStatus {
     private int idHistorique;
-    private Date date_changement;
+    private String dateChangement;
+    private int idStatusMessage;
+    private int idMessage;
     private StatusMessage status;
     private Message message;
-    public HistoriqueMessageStatus( int id, Date changement, StatusMessage status, Message message)
-    {
+
+    // Constructeur par défaut
+    public HistoriqueMessageStatus() {
+    }
+
+    // Constructeur avec 4 paramètres
+    public HistoriqueMessageStatus(int id, String changement, int idStatusMessage, int idMessage) {
         this.idHistorique = id;
-        this.date_changement = changement;
+        this.dateChangement = changement;
+        this.idStatusMessage = idStatusMessage;
+        this.idMessage = idMessage;
+    }
+
+    // Getters et setters...
+    public int getIdHistorique() {
+        return idHistorique;
+    }
+
+    public void setIdHistorique(int idHistorique) {
+        this.idHistorique = idHistorique;
+    }
+
+    public String getDateChangement() {
+        return dateChangement;
+    }
+
+    public void setDateChangement(String dateChangement) {
+        this.dateChangement = dateChangement;
+    }
+
+    public int getIdStatusMessage() {
+        return idStatusMessage;
+    }
+
+    public void setIdStatusMessage(int idStatusMessage) {
+        this.idStatusMessage = idStatusMessage;
+    }
+
+    public int getIdMessage() {
+        return idMessage;
+    }
+
+    public void setIdMessage(int idMessage) {
+        this.idMessage = idMessage;
+    }
+
+    public StatusMessage getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusMessage status) {
         this.status = status;
-        this.message = message;
     }
-    public int getIdHistorique()
-    {
-        return this.idHistorique;
+
+    public Message getMessage() {
+        return message;
     }
-    public Date getDateChangement()
-    {
-        return this.date_changement;
-    }
-    public void setDateChangement( Date date)
-    {
-        this.date_changement = date;
-    }
-    public StatusMessage getStatus()
-    {
-        return this.status;
-    }
-    public void setStatus( StatusMessage status)
-    {
-        this.status = status;
-    }
-    public Message getMessage()
-    {
-        return this.message;
-    }
-    public void setMessage( Message mess)
-    {
+
+    public void setMessage(Message message) {
         this.message = message;
     }
 }
