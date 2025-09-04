@@ -7,7 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class HistoriqueMessageStatus {
     private int idHistorique;
-    private Date date_changement;
+    private String dateChangement;
+    private int idStatusMessage;
+    private int idMessage;
     private StatusMessage status;
     private Message message;
     public HistoriqueMessageStatus(Date changement, StatusMessage status, Message message)
@@ -33,28 +35,48 @@ public class HistoriqueMessageStatus {
     {
         return this.idHistorique;
     }
-    public Date getDateChangement()
-    {
-        return this.date_changement;
+
+    public void setIdHistorique(int idHistorique) {
+        this.idHistorique = idHistorique;
     }
-    public void setDateChangement( Date date)
-    {
-        this.date_changement = date;
+
+    public String getDateChangement() {
+        return dateChangement;
     }
-    public StatusMessage getStatus()
-    {
-        return this.status;
+
+    public void setDateChangement(String dateChangement) {
+        this.dateChangement = dateChangement;
     }
-    public void setStatus( StatusMessage status)
-    {
+
+    public int getIdStatusMessage() {
+        return idStatusMessage;
+    }
+
+    public void setIdStatusMessage(int idStatusMessage) {
+        this.idStatusMessage = idStatusMessage;
+    }
+
+    public int getIdMessage() {
+        return idMessage;
+    }
+
+    public void setIdMessage(int idMessage) {
+        this.idMessage = idMessage;
+    }
+
+    public StatusMessage getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusMessage status) {
         this.status = status;
     }
-    public Message getMessage()
-    {
-        return this.message;
+
+    public Message getMessage() {
+        return message;
     }
-    public void setMessage( Message mess)
-    {
+
+    public void setMessage(Message message) {
         this.message = message;
     }
 }

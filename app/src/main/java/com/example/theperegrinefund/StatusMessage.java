@@ -4,6 +4,10 @@ public class StatusMessage {
     private int idStatusMessage;
     private String status;
 
+    // Ajout d'un constructeur par défaut
+    public StatusMessage() {
+    }
+
     public StatusMessage(int idStatusMessage, String status) {
         this.idStatusMessage = idStatusMessage;
         this.status = status;

@@ -33,8 +33,9 @@
     <!-- Dashboard -->
     <string name="dashboard_title">Dashboard Raptor</string>
     <string name="history_title">History of sent messages</string>
-    <string name="fire_message">Feux de brousse</string>
-    <string name="fire_message_date">26/08/25</string>
+    <string name="fire_message">Historique</string>
+    <string name="fire_message_date">Date du message incendie</string>
+    
     
     <!-- Information Card -->
     <string name="code_label">Code</string>

@@ -125,6 +125,7 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+
         <!-- Bouton Sign In -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_sign_in"
@@ -155,4 +156,6 @@
             android:background="@android:color/white"/>
 
     </LinearLayout>
+    </LinearLayout>
+
 </ScrollView>

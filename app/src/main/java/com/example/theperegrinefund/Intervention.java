@@ -1,23 +1,33 @@
 package com.example.theperegrinefund;
+import com.google.gson.annotations.SerializedName;
 
 public class Intervention {
-    private int id_Intervention;
+    @SerializedName("id_Intervention")
+    private int idIntervention;
+
+    @SerializedName("intervention")
     private String intervention;
 
-    public Intervention(int id_Intervention, String intervention) {
-        this.id_Intervention = id_Intervention ;
+    // Ajout d'un constructeur par défaut
+    public Intervention() {}
+
+    public Intervention(int idIntervention, String intervention) {
+        this.idIntervention = idIntervention;
         this.intervention = intervention;
     }
 
     public int getIdIntervention() {
-        return id_Intervention;
+        return idIntervention;
     }
 
-    public void setIdIntervention(int id_Intervention) {
-        this.id_Intervention = id_Intervention;
+    public void setIdIntervention(int idIntervention) {
+        this.idIntervention = idIntervention;
     }
 
     public String getIntervention() {
         return intervention;
     }
+    public void setIntervention(String intervention) {
+        this.intervention = intervention;
+    }   
 }
