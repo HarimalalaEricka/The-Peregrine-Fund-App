@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dashboard strings -->
+    <string name="dashboard_title">Dashboard Raptor</string>
+    <string name="history_title">History of sent messages</string>
+    <string name="fire_message_sample">Feux de brousse 26/08/25</string>
+    
+    <!-- Information card -->
+    <string name="code_label">Code</string>
+    <string name="code_sample">dshdgs/hdjsa/23-09-25</string>
+    <string name="information_label">l\'information</string>
+    
+    <!-- Grid headers -->
+    <string name="category_label">Categorie</string>
+    <string name="datetime_label">Date/ heure</string>
+    <string name="surface_label">Surface</string>
+    
+    <!-- Existing strings from previous interface -->
+    <string name="app_name">Raptor App</string>
+    <string name="slogan_text">"Saving raptors, enriching lives."</string>
+    <string name="name_hint">Name</string>
+    <string name="password_hint">Password</string>
+    <string name="sign_in_text">Sign in</string>
+    <string name="welcome_message">Bienvenue dans Raptor App!</string>
+    <string name="app_description">Découvrez le monde fascinant des rapaces et contribuez à leur protection. Explorez, apprenez et agissez pour la conservation de ces magnifiques oiseaux de proie.</string>
+    <string name="explore_button">Explorer</string>
+    <string name="profile_button">Mon Profil</string>
+    <string name="action_logout">Déconnexion</string>
+    <string name="action_settings">Paramètres</string>
+    <string name="logo_description">Logo de l\'application raptor</string>
+    <string name="decoration_description">Image décorative centrale</string>
+    <string name="error_name_required">Le nom est requis</string>
+    <string name="error_password_required">Le mot de passe est requis</string>
+    <string name="error_invalid_credentials">Nom d\'utilisateur ou mot de passe incorrect</string>
+    <string name="success_login">Connexion réussie!</string>
+</resources>
