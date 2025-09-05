@@ -38,7 +38,6 @@ import com.example.theperegrinefund.AppData;
 import com.example.theperegrinefund.StatActivity;
 import com.example.theperegrinefund.HistoryItemD;
 
-// Add these imports
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import com.example.theperegrinefund.security.ConfigLoader;
@@ -58,7 +57,6 @@ public class DashboardActivity extends AppCompatActivity {
     private ImageView infoIcon;
     private int FIXED_USER_ID;
     
-    // Add ServerSender instance
     private ServerSender serverSender;
     private String SERVER_URL;
     private String SECRET_KEY;
@@ -68,12 +66,10 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        // Initialize server configuration
         try {
             SERVER_URL = ConfigLoader.getServerUrl(this);
             SECRET_KEY = ConfigLoader.getSecretKey(this);
             
-            // Initialize Retrofit and ServerSender
             Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(SERVER_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -87,11 +83,9 @@ public class DashboardActivity extends AppCompatActivity {
             Toast.makeText(this, "Erreur de configuration serveur", Toast.LENGTH_SHORT).show();
         }
 
-        // Initialisation du Drawer et du contenu principal
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-        LinearLayout mainContent = findViewById(R.id.main_content); // LinearLayout contenant tout le contenu principal
+        LinearLayout mainContent = findViewById(R.id.main_content);
 
-        // Décalage du contenu principal quand le drawer s'ouvre
         drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
@@ -99,11 +93,9 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
-        // Initialisation des autres vues (menuIcon, RecyclerView, etc.)
         menuIcon = findViewById(R.id.menu_icon);
         historyRecyclerView = findViewById(R.id.history_recycler_view);
 
-        // Clic sur le bouton menu
         menuIcon.setOnClickListener(v -> {
             if (drawerLayout.isDrawerOpen(findViewById(R.id.history_drawer))) {
                 drawerLayout.closeDrawer(findViewById(R.id.history_drawer));
@@ -112,42 +104,29 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
-        // Initialisation des autres vues (newIcon, RecyclerView, etc.)
         newIcon = findViewById(R.id.new_icon);
         infoIcon = findViewById(R.id.info_icon);
-        // Après l'initialisation des autres icônes
         ImageView logoutIcon = findViewById(R.id.logout_icon);
         logoutIcon.setOnClickListener(v -> logout());
-        // Synchronisation des données au démarrage
+        
         MessageDao messageDao = new MessageDao(this);
         SyncService syncService = new SyncService(this);
         AppData appData = new AppData();
         int userId = appData.getCurrentUserId();
-       // FIXED_USER_ID = userId; // Utilisez l'ID utilisateur actuel
-        FIXED_USER_ID = 1; // ID utilisateur fixe pour les tests
-        // Synchronisez d'abord les statuts
+        FIXED_USER_ID = userId;
+
         syncService.downloadStatus(new SyncService.StatusCallback() {
             @Override
             public void onComplete(List<StatusMessage> statusMessages) {
-                Log.d("SYNC", "Statuts synchronisés : " + statusMessages.size());
-                
-                // Ensuite, synchronisez les interventions
                 syncService.downloadIntervention(new SyncService.InterventionCallback() {
                     @Override
                     public void onComplete(List<Intervention> interventions) {
-                        Log.d("SYNC", "Interventions synchronisées : " + interventions.size());
-                        
-                        // Puis synchronisez les messages
                         syncService.downloadMessages(FIXED_USER_ID, new SyncService.MessageCallback() {
                             @Override
                             public void onComplete(List<Message> messages) {
-                                Log.d("SYNC", "Messages synchronisés : " + messages.size());
-                                
-                                // Enfin, synchronisez l'historique
                                 syncService.downloadHistorique(FIXED_USER_ID, new SyncService.HistoriqueCallback() {
                                     @Override
                                     public void onComplete(List<HistoriqueMessageStatus> historiques) {
-                                        Log.d("SYNC", "Historique synchronisé : " + historiques.size());
                                         runOnUiThread(() -> {
                                             Toast.makeText(DashboardActivity.this, "Synchronisation terminée", Toast.LENGTH_SHORT).show();
                                             loadSampleData();
@@ -181,7 +160,6 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
-        // Clic sur le bouton new
         newIcon.setOnClickListener(v -> {
             Intent intent = new Intent(DashboardActivity.this, BaseActivity.class);
             startActivity(intent);
@@ -189,7 +167,6 @@ public class DashboardActivity extends AppCompatActivity {
 
         infoIcon.setOnClickListener(v -> startActivity(new Intent(DashboardActivity.this, StatActivity.class)));
 
-        // Reste du code : RecyclerView, chargement des données, etc.
         historyItems = new ArrayList<>();
         historyAdapter = new HistoryAdapter(historyItems, this::onHistoryItemClick);
         historyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -203,11 +180,13 @@ public class DashboardActivity extends AppCompatActivity {
         MessageDao messageDao = new MessageDao(this);
         List<Message> messages = messageDao.getAllMessages();
 
+        Toast.makeText(this, "Nombre de messages en local: " + messages.size(), Toast.LENGTH_SHORT).show();
+
         for (Message msg : messages) {
             historyItems.add(new HistoryItemD(
                     msg.getDescription() + " (" + msg.getDateCommencement() + ")",
                     false,
-                    msg.getIdMessage() // Ajoutez le troisième paramètre
+                    msg.getIdMessage()
             ));
         }
 
@@ -215,123 +194,108 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void showMessageDetails(int messageId) {
-    MessageDao messageDao = new MessageDao(this);
-    HistoriqueMessageStatusDao historiqueDao = new HistoriqueMessageStatusDao(this);
-    Message message = messageDao.getMessageById(messageId);
+        MessageDao messageDao = new MessageDao(this);
+        HistoriqueMessageStatusDao historiqueDao = new HistoriqueMessageStatusDao(this);
+        Message message = messageDao.getMessageById(messageId);
 
-    if (message != null) {
-        // Formatteur de date
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-        
-        // Trouvez les vues dans votre CardView
-        TextView tvDateTime = findViewById(R.id.tv_datetime);
-        TextView tvSignalement = findViewById(R.id.tv_signalement);
-        TextView tvSurface = findViewById(R.id.tv_surface);
-        TextView tvDescription = findViewById(R.id.tv_description);
-        TextView tvHistoryContent = findViewById(R.id.tv_history_content);
-        Button btnEnCours = findViewById(R.id.btn_en_cours);
-        Button btnMaitrise = findViewById(R.id.btn_maitrise);
-        TextView tvStatusMessage = findViewById(R.id.tv_status_message); // Ajout de la référence
+        if (message != null) {
+            Toast.makeText(this, "Message trouvé avec l'ID: " + messageId, Toast.LENGTH_SHORT).show();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+            
+            TextView tvDateTime = findViewById(R.id.tv_datetime);
+            TextView tvSignalement = findViewById(R.id.tv_signalement);
+            TextView tvSurface = findViewById(R.id.tv_surface);
+            TextView tvDescription = findViewById(R.id.tv_description);
+            TextView tvHistoryContent = findViewById(R.id.tv_history_content);
+            Button btnEnCours = findViewById(R.id.btn_en_cours);
+            Button btnMaitrise = findViewById(R.id.btn_maitrise);
+            TextView tvStatusMessage = findViewById(R.id.tv_status_message);
 
-        // Mettez à jour les vues avec les données du message (convertir les dates en String)
-        if (message.getDateCommencement() != null) {
-            tvDateTime.setText(dateFormat.format(message.getDateCommencement()));
-        } else {
-            tvDateTime.setText("Date inconnue");
+            if (message.getDateCommencement() != null) {
+                tvDateTime.setText(dateFormat.format(message.getDateCommencement()));
+            } else {
+                tvDateTime.setText("Date inconnue");
+            }
+            
+            if (message.getDateSignalement() != null) {
+                tvSignalement.setText(dateFormat.format(message.getDateSignalement()));
+            } else {
+                tvSignalement.setText("Date inconnue");
+            }
+            
+            tvSurface.setText(message.getSurfaceApproximative() + " ha");
+            tvDescription.setText(message.getDescription());
+
+            int lastStatusId = historiqueDao.getLastStatusForMessage(messageId);
+
+            btnEnCours.setVisibility(View.GONE);
+            btnMaitrise.setVisibility(View.GONE);
+            tvStatusMessage.setVisibility(View.GONE);
+
+            if (lastStatusId == 1) {
+                btnEnCours.setVisibility(View.VISIBLE);
+                btnMaitrise.setVisibility(View.VISIBLE);
+            } else if (lastStatusId == 2) {
+                btnMaitrise.setVisibility(View.VISIBLE);
+            } else if (lastStatusId == 3) {
+                tvStatusMessage.setVisibility(View.VISIBLE);
+            }
+
+            btnEnCours.setOnClickListener(v -> updateStatus(messageId, "En Cours"));
+            btnMaitrise.setOnClickListener(v -> updateStatus(messageId, "Maitrise"));
+
+            List<HistoriqueMessageStatus> historiqueList = historiqueDao.getStatusHistoryForMessage(messageId);
+            StringBuilder historyBuilder = new StringBuilder();
+
+            for (HistoriqueMessageStatus hist : historiqueList) {
+                String statusName = getStatusNameFromId(hist.getIdStatusMessage());
+                historyBuilder.append(hist.getDateChangement())
+                            .append(" - ")
+                            .append(statusName)
+                            .append("\n");
+            }
+
+            tvHistoryContent.setText(historyBuilder.toString());
         }
-        
-        if (message.getDateSignalement() != null) {
-            tvSignalement.setText(dateFormat.format(message.getDateSignalement()));
-        } else {
-            tvSignalement.setText("Date inconnue");
-        }
-        
-        tvSurface.setText(message.getSurfaceApproximative() + " ha");
-        tvDescription.setText(message.getDescription());
-
-        // 🔹 Vérifier le dernier statut
-        int lastStatusId = historiqueDao.getLastStatusForMessage(messageId);
-
-        // Cacher tous les éléments par défaut
-        btnEnCours.setVisibility(View.GONE);
-        btnMaitrise.setVisibility(View.GONE);
-        tvStatusMessage.setVisibility(View.GONE);
-
-        // Gérer l'affichage selon le statut
-        if (lastStatusId == 1) {
-            // Statut "Nouveau" - Afficher les deux boutons
-            btnEnCours.setVisibility(View.VISIBLE);
-            btnMaitrise.setVisibility(View.VISIBLE);
-        } else if (lastStatusId == 2) {
-            // Statut "En Cours" - Afficher seulement le bouton "Maitrise"
-            btnMaitrise.setVisibility(View.VISIBLE);
-        } else if (lastStatusId == 3) {
-            // Statut "Maitrise" - Afficher le message
-            tvStatusMessage.setVisibility(View.VISIBLE);
-        }
-
-        // Set up button click listeners for status updates
-        btnEnCours.setOnClickListener(v -> updateStatus(messageId, "En Cours"));
-        btnMaitrise.setOnClickListener(v -> updateStatus(messageId, "Maitrise"));
-
-        // Récupérer l'historique complet des statuts
-        List<HistoriqueMessageStatus> historiqueList = historiqueDao.getStatusHistoryForMessage(messageId);
-        StringBuilder historyBuilder = new StringBuilder();
-
-        for (HistoriqueMessageStatus hist : historiqueList) {
-            String statusName = getStatusNameFromId(hist.getIdStatusMessage());
-            historyBuilder.append(hist.getDateChangement())
-                        .append(" - ")
-                        .append(statusName)
-                        .append("\n");
-        }
-
-        tvHistoryContent.setText(historyBuilder.toString());
     }
-}
 
-
-    // Méthode pour mettre à jour le statut
     private void updateStatus(int messageId, String newStatus) {
-        // Create a new HistoriqueMessageStatus with String date
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         String currentDateString = dateFormat.format(new Date());
 
         HistoriqueMessageStatus historique = new HistoriqueMessageStatus(
-            currentDateString,  // dateChangement as String
-            getStatusIdFromName(newStatus),  // idStatusMessage (you need to convert status name to ID)
-            messageId           // idMessage
+            currentDateString,
+            getStatusIdFromName(newStatus),
+            messageId
         );
         
-        // Send the status update using ServerSender
         if (serverSender != null) {
             serverSender.sendHistory(historique);
         } else {
             Toast.makeText(this, "Erreur: Serveur non initialisé", Toast.LENGTH_SHORT).show();
         }
         
-        // Rafraîchir l'affichage
         showMessageDetails(messageId);
     }
-private int getStatusIdFromName(String statusName) {
-    // Implement this method to get the status ID from the status name
-    // This might involve querying your database or using a predefined mapping
-    switch (statusName) {
-        case "En Cours":
-            return 2; // Replace with actual ID
-        case "Maitrise":
-            return 3; // Replace with actual ID
-        // Add more cases as needed
-        default:
-            return -1; // Unknown status
+
+    private int getStatusIdFromName(String statusName) {
+        switch (statusName) {
+            case "En Cours":
+                return 2;
+            case "Maitrise":
+                return 3;
+            default:
+                return -1;
+        }
     }
-}
-     public String getStatusNameFromId(int statusId) {
+
+    public String getStatusNameFromId(int statusId) {
         String statusName = "Inconnu";
         StatusMessageDao statusDao = new StatusMessageDao(this);
         statusName = statusDao.getStatusNameId(statusId);
         return statusName;
     }
+
     private void onHistoryItemClick(HistoryItemD item, int position) {
         for (HistoryItemD historyItem : historyItems) {
             historyItem.setSelected(false);
@@ -339,7 +303,6 @@ private int getStatusIdFromName(String statusName) {
         item.setSelected(true);
         historyAdapter.notifyDataSetChanged();
         
-        // Affichez les détails du message
         showMessageDetails(item.getMessageId());
     }
 

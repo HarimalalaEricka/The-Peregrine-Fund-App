@@ -3,6 +3,7 @@ package com.example.theperegrinefund.security;
 import android.content.Context;
 import java.io.InputStream;
 import java.util.Properties;
+import android.util.Log;
 
 public class ConfigLoader {
 
@@ -34,10 +35,16 @@ public class ConfigLoader {
         Properties props = new Properties();
         try (InputStream input = context.getAssets().open("config.properties")) {
             if (input == null) {
+                Log.e("ConfigLoader", "Fichier config.properties introuvable !");
                 throw new RuntimeException("Fichier config.properties introuvable !");
             }
             props.load(input);
+            String url = props.getProperty("server.url");
+            Log.d("ConfigLoader", "URL chargée: " + url);
+            return url;
+        } catch (Exception e) {
+            Log.e("ConfigLoader", "Erreur de lecture du fichier config", e);
+            throw e;
         }
-        return props.getProperty("server.url");
     }
 }
