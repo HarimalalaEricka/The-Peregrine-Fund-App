@@ -123,8 +123,8 @@ public class DashboardActivity extends AppCompatActivity {
         SyncService syncService = new SyncService(this);
         AppData appData = new AppData();
         int userId = appData.getCurrentUserId();
-        FIXED_USER_ID = userId; // Utilisez l'ID utilisateur actuel
-
+       // FIXED_USER_ID = userId; // Utilisez l'ID utilisateur actuel
+        FIXED_USER_ID = 1; // ID utilisateur fixe pour les tests
         // Synchronisez d'abord les statuts
         syncService.downloadStatus(new SyncService.StatusCallback() {
             @Override
