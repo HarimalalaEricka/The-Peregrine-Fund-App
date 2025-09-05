@@ -66,7 +66,7 @@ public class ServerSender {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    Long newId = historiqueDao.insertHistorique(historique);
+                 //   Long newId = historiqueDao.insertHistorique(historique);
                     // message.setIdMessage(newId);
                     // MyDatabaseHelper dbHelper = new MyDatabaseHelper(context);
                     // int idStatus = dbHelper.getIdStatusMessage(status);
