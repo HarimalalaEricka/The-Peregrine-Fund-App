@@ -52,7 +52,32 @@ public class HistoriqueMessageStatusDao {
         db.close();
         return list;
     }
+        public int getLastStatusForMessage(int messageId) {
+        int lastStatusId = -1;
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = null;
 
+        try {
+            cursor = db.rawQuery(
+                "SELECT " + MyDatabaseHelper.COLUMN_HISTORIQUE_STATUS_FK +
+                " FROM " + MyDatabaseHelper.TABLE_HISTORIQUE +
+                " WHERE " + MyDatabaseHelper.COLUMN_HISTORIQUE_MESSAGE_FK + " = ?" +
+                " ORDER BY " + MyDatabaseHelper.COLUMN_HISTORIQUE_DATE + " DESC LIMIT 1",
+                new String[]{String.valueOf(messageId)}
+            );
+
+            if (cursor.moveToFirst()) {
+                lastStatusId = cursor.getInt(
+                    cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_HISTORIQUE_STATUS_FK)
+                );
+            }
+        } finally {
+            if (cursor != null) cursor.close();
+            db.close();
+        }
+        return lastStatusId;
+    }
+       
     public List<HistoriqueMessageStatus> getStatusHistoryForMessage(int messageId) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<HistoriqueMessageStatus> historiques = new ArrayList<>();

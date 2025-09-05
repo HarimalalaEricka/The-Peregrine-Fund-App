@@ -1,11 +1,11 @@
 package com.example.theperegrinefund;
 
-public class HistoryItem {
+public class HistoryItemD {
     private String title;
     private boolean isSelected;
     private int messageId;
 
-    public HistoryItem(String title, boolean isSelected, int messageId) {
+    public HistoryItemD(String title, boolean isSelected, int messageId) {
         this.title = title;
         this.isSelected = isSelected;
         this.messageId = messageId;

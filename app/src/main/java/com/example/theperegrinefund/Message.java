@@ -1,47 +1,97 @@
 package com.example.theperegrinefund;
-
 import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.Locale;   
+import android.content.ContentValues;
+import android.content.Context;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import android.util.Base64;
-import android.content.ContentValues;
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-
+import com.google.gson.annotations.SerializedName;
 public class Message {
 
     private int idMessage;
+    private String phoneNumber;
     private Date dateCommencement;
     private Date dateSignalement;
-    private Intervention intervention;
-    private boolean renfort;
-    private String direction;
-    private double surfaceApproximative;
     private String pointRepere;
+    private double surfaceApproximative;
     private String description;
-    private int user;
-    private String phoneNumber;
+    private String direction;
+    private boolean renfort;
     private double longitude;
     private double latitude;
+    private int idIntervention;
 
-    public Message(Date dateCommencement, Date dateSignalement,
-                   Intervention intervention, boolean renfort, String direction,
-                   double surfaceApproximative, String pointRepere, String description,
-                   String phoneNumber, double longitude, double latitude, int user) {
-        // this.idMessage = idMessage;
+    // Champ utilisé côté mobile pour la synchro
+    private int idUserApp;
+
+   public Message( Date dateCommencement, Date dateSignalement,int idIntervention,boolean renfort,String direction,
+                double surfaceApproximative,String pointRepere,String description, String phoneNumber,
+                 double longitude, double latitude, int idUserApp) {
+    
+        this.phoneNumber = phoneNumber;
         this.dateCommencement = dateCommencement;
         this.dateSignalement = dateSignalement;
-        this.intervention = intervention;
-        this.renfort = renfort;
-        this.direction = direction;
-        this.surfaceApproximative = surfaceApproximative;
         this.pointRepere = pointRepere;
+        this.surfaceApproximative = surfaceApproximative;
         this.description = description;
-        this.user = user;
-        this.phoneNumber = phoneNumber;
+        this.direction = direction;
+        this.renfort = renfort;
         this.longitude = longitude;
         this.latitude = latitude;
+        this.idIntervention = idIntervention;
+        this.idUserApp = idUserApp;
     }
+    public Message() {
+        // constructeur vide nécessaire pour MessageDao
+    }
+
+
+    // --- Getters et setters ---
+    public int getIdMessage() { return idMessage; }
+    public void setIdMessage(int idMessage) { this.idMessage = idMessage; }
+
+    public Date getDateCommencement() { return dateCommencement; }
+    public void setDateCommencement(Date dateCommencement) { this.dateCommencement = dateCommencement; }
+
+    public Date getDateSignalement() { return dateSignalement; }
+    public void setDateSignalement(Date dateSignalement) { this.dateSignalement = dateSignalement; }
+
+    public String getPointRepere() { return pointRepere; }
+    public void setPointRepere(String pointRepere) { this.pointRepere = pointRepere; }
+
+    public double getSurfaceApproximative() { return surfaceApproximative; }
+    public void setSurfaceApproximative(double surfaceApproximative) { this.surfaceApproximative = surfaceApproximative; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public String getDirection() { return direction; }
+    public void setDirection(String direction) { this.direction = direction; }
+
+    public boolean isRenfort() { return renfort; }
+    public void setRenfort(boolean renfort) { this.renfort = renfort; }
+
+    public double getLongitude() { return longitude; }
+    public void setLongitude(double longitude) { this.longitude = longitude; }
+
+    public double getLatitude() { return latitude; }
+    public void setLatitude(double latitude) { this.latitude = latitude; }
+
+    public boolean isValid() {
+        return phoneNumber != null && !phoneNumber.isEmpty();
+    }
+
+    public int getIdIntervention() { return idIntervention; }
+    public void setIdIntervention(int idIntervention) { this.idIntervention = idIntervention; }
+
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+
+    public int getIdUserApp() { return idUserApp; }
+    public void setIdUserApp(int idUserApp) { this.idUserApp = idUserApp; }
 
     public String chiffrer(String cleSecrete, String mess) throws Exception {
         SecretKeySpec key = new SecretKeySpec(cleSecrete.getBytes("UTF-8"), "AES");
@@ -59,137 +109,47 @@ public class Message {
         byte[] decrypted = cipher.doFinal(decoded);
         return new String(decrypted, "UTF-8");
     }
-
     public int save(Context context) {
-        MyDatabaseHelper dbHelper = new MyDatabaseHelper(context);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+    MyDatabaseHelper dbHelper = new MyDatabaseHelper(context);
+    SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues values = new ContentValues();
-        values.put("Date_Commencement", dateCommencement.getTime()); // stocké en timestamp
-        values.put("Date_signalement", dateSignalement.getTime());
-        values.put("PointRepere", pointRepere);
-        values.put("Surface_Approximative", surfaceApproximative);
-        values.put("Description", description);
-        values.put("Direction", direction);
-        values.put("renfort", renfort);
-        values.put("longitude", longitude);
-        values.put("latitude", latitude);
+    ContentValues values = new ContentValues();
 
-        if (intervention != null) {
-            values.put("Id_Intervention", intervention.getIdIntervention());
-        }
-        if (user != 0) {
-            values.put("IdUserApp", user);
-        }
+    // Créer un format de date pour la conversion
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
-        int newId = (int) db.insert("Message", null, values);
-        db.close();
-        return newId; // retourne l’ID inséré ou -1 en cas d’erreur
+    // Conversion des Date en String pour la base de données
+    if (dateCommencement != null) {
+        values.put(MyDatabaseHelper.COLUMN_DATE_COMMENCEMENT, dateFormat.format(dateCommencement));
     }
+    if (dateSignalement != null) {
+        values.put(MyDatabaseHelper.COLUMN_DATE_SIGNAL, dateFormat.format(dateSignalement));
+    }
+    
+    values.put(MyDatabaseHelper.COLUMN_PHONE_NUMBER, phoneNumber);
+    values.put(MyDatabaseHelper.COLUMN_POINT_REPERE, pointRepere);
+    values.put(MyDatabaseHelper.COLUMN_SURFACE, surfaceApproximative);
+    values.put(MyDatabaseHelper.COLUMN_DESCRIPTION, description);
+    values.put(MyDatabaseHelper.COLUMN_DIRECTION, direction);
 
-    public int getIdMessage() {
-        return idMessage;
-    }
+    // Boolean en INTEGER
+    values.put(MyDatabaseHelper.COLUMN_RENFORT, renfort ? 1 : 0);
 
-    public void setIdMessage(int idMessage) {
-        this.idMessage = idMessage;
-    }
+    values.put(MyDatabaseHelper.COLUMN_LONGITUDE, longitude);
+    values.put(MyDatabaseHelper.COLUMN_LATITUDE, latitude);
 
-    public Date getDateCommencement() {
-        return dateCommencement;
-    }
+    values.put(MyDatabaseHelper.COLUMN_INTERVENTION_FK, idIntervention);
+    values.put(MyDatabaseHelper.COLUMN_USER_FK, idUserApp);
 
-    public void setDateCommencement(Date dateCommencement) {
-        this.dateCommencement = dateCommencement;
-    }
+    // Insert et récupération de l'ID inséré
+    int newId = (int) db.insert(MyDatabaseHelper.TABLE_MESSAGE, null, values);
 
-    public Date getDateSignalement() {
-        return dateSignalement;
-    }
-
-    public void setDateSignalement(Date dateSignalement) {
-        this.dateSignalement = dateSignalement;
-    }
-
-    public Intervention getIntervention() {
-        return intervention;
-    }
-
-    public void setIntervention(Intervention intervention) {
-        this.intervention = intervention;
-    }
-
-    public boolean isRenfort() {
-        return renfort;
-    }
-
-    public void setRenfort(boolean renfort) {
-        this.renfort = renfort;
-    }
-
-    public String getDirection() {
-        return direction;
-    }
-
-    public void setDirection(String direction) {
-        this.direction = direction;
-    }
-
-    public double getSurfaceApproximative() {
-        return surfaceApproximative;
-    }
-
-    public void setSurfaceApproximative(double surfaceApproximative) {
-        this.surfaceApproximative = surfaceApproximative;
-    }
-
-    public String getPointRepere() {
-        return pointRepere;
-    }
-
-    public void setPointRepere(String pointRepere) {
-        this.pointRepere = pointRepere;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getUser() {
-        return user;
-    }
-
-    public void setUser(int user) {
-        this.user = user;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-    public boolean isValid() {
-        return phoneNumber != null && !phoneNumber.isEmpty();
-    }
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
+    db.close();
+    return newId; // retourne l'ID inséré ou -1 en cas d'erreur
 }
+
+  
+}
+
+
+    

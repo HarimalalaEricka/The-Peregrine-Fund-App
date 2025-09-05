@@ -37,6 +37,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 import com.example.theperegrinefund.security.ConfigLoader;
+import com.example.theperegrinefund.dao.MessageDao;
+import com.example.theperegrinefund.Message;
+import java.util.List;
+import android.content.Intent;
 
 public class StatActivity extends AppCompatActivity {
 
@@ -82,8 +86,16 @@ public class StatActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+        ImageView logoutIcon = findViewById(R.id.logout_icon);
+        logoutIcon.setOnClickListener(v -> logout());
     }
 
+     private void logout() {
+        Intent intent = new Intent(StatActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    } 
     private void initialiserSmsObserver() {
         // Enregistrer un ContentObserver pour surveiller la boîte de réception SMS
         getContentResolver().registerContentObserver(
@@ -342,22 +354,31 @@ public class StatActivity extends AppCompatActivity {
         }
 
         // Récupération des messages depuis SQLite
-        MyDatabaseHelper dbHelper = new MyDatabaseHelper(this); // Si Fragment : getContext()
-        ArrayList<Message> messages = dbHelper.getAllMessages();
+        MessageDao dbHelper = new MessageDao(this); // Si Fragment : getContext()
+        List<Message> messages = dbHelper.getAllMessages(); // Utilisez getAllMessages() au lieu de getAllMessagesArrayList()
 
-        // Ajouter des marqueurs sur la carte
-        for (Message m : messages) {
-            org.osmdroid.views.overlay.Marker marker = new org.osmdroid.views.overlay.Marker(map);
-            GeoPoint point = new GeoPoint(m.getLatitude(), m.getLongitude());
-            marker.setPosition(point);
-            marker.setTitle(m.getDescription());
-            marker.setAnchor(org.osmdroid.views.overlay.Marker.ANCHOR_CENTER,
-                            org.osmdroid.views.overlay.Marker.ANCHOR_BOTTOM);
-            map.getOverlays().add(marker);
-        }
+// Ajouter des marqueurs sur la carte
+for (Message m : messages) {
+    // Vérifier que les coordonnées sont valides avant d'ajouter le marqueur
+    if (m.getLatitude() != 0.0 && m.getLongitude() != 0.0) {
+        org.osmdroid.views.overlay.Marker marker = new org.osmdroid.views.overlay.Marker(map);
+        GeoPoint point = new GeoPoint(m.getLatitude(), m.getLongitude());
+        marker.setPosition(point);
+        marker.setTitle(m.getDescription());
+        marker.setAnchor(org.osmdroid.views.overlay.Marker.ANCHOR_CENTER,
+                        org.osmdroid.views.overlay.Marker.ANCHOR_BOTTOM);
+        map.getOverlays().add(marker);
+        
+        // Log pour déboguer
+        Log.d("MapDebug", "Marqueur ajouté: " + m.getDescription() + 
+              " à " + m.getLatitude() + ", " + m.getLongitude());
+    } else {
+        Log.d("MapDebug", "Coordonnées invalides pour: " + m.getDescription());
+    }
+}
 
-        // Rafraîchir la carte
-        map.invalidate();
+// Rafraîchir la carte après avoir ajouté tous les marqueurs
+map.invalidate();
     }
 
     @Override

@@ -16,6 +16,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 import com.example.theperegrinefund.security.ConfigLoader;
 import com.example.theperegrinefund.security.CredentialUtil;
@@ -92,7 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                     if (waitingForResponse && corps != null) {
                         waitingForResponse = false;
 
-                        if (corps.contains("Connexion réussie")) {
+                        if (corps.contains("ID")) {
 
                             Toast.makeText(LoginActivity.this, "Authentification réussie!", Toast.LENGTH_SHORT).show();
                             int userId = extraireIdUser(corps);

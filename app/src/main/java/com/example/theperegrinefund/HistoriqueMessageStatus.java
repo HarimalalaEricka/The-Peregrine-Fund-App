@@ -1,10 +1,5 @@
 package com.example.theperegrinefund;
 
-import java.util.Date;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-
 public class HistoriqueMessageStatus {
     private int idHistorique;
     private String dateChangement;
@@ -12,28 +7,27 @@ public class HistoriqueMessageStatus {
     private int idMessage;
     private StatusMessage status;
     private Message message;
-    public HistoriqueMessageStatus(Date changement, StatusMessage status, Message message)
-    {
-        this.date_changement = changement;
-        this.status = status;
-        this.message = message;
-    }
-    public long save(Context context) {
-        MyDatabaseHelper dbHelper = new MyDatabaseHelper(context);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues values = new ContentValues();
-        values.put("date_changement", date_changement.getTime()); // stocké en timestamp
-        values.put("Id_status_message", status.getIdStatusMessage());
-        values.put("Id_Message", message.getIdMessage());
-
-        long newId = db.insert("historique_message_status", null, values);
-        db.close();
-        return newId; // retourne l’ID inséré ou -1 en cas d’erreur
+    // Constructeur par défaut
+    public HistoriqueMessageStatus() {
     }
-    public int getIdHistorique()
-    {
-        return this.idHistorique;
+    public HistoriqueMessageStatus(String changement, int idStatusMessage, int idMessage) {
+     
+        this.dateChangement = changement;
+        this.idStatusMessage = idStatusMessage;
+        this.idMessage = idMessage;
+    }
+    // Constructeur avec 4 paramètres
+    public HistoriqueMessageStatus(int id, String changement, int idStatusMessage, int idMessage) {
+        this.idHistorique = id;
+        this.dateChangement = changement;
+        this.idStatusMessage = idStatusMessage;
+        this.idMessage = idMessage;
+    }
+
+    // Getters et setters...
+    public int getIdHistorique() {
+        return idHistorique;
     }
 
     public void setIdHistorique(int idHistorique) {

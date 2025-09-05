@@ -30,6 +30,8 @@ import android.widget.ArrayAdapter;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import android.util.Log;
+import com.example.theperegrinefund.AppData;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -63,6 +65,10 @@ import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.example.theperegrinefund.security.ConfigLoader;
+import com.example.theperegrinefund.HistoryItemD;
+import com.example.theperegrinefund.dao.MessageDao;
+import com.example.theperegrinefund.Message;
+
 
 public class BaseActivity extends AppCompatActivity {
 
@@ -70,7 +76,7 @@ public class BaseActivity extends AppCompatActivity {
     private ActionBarDrawerToggle toggle;
     private RecyclerView historyRecyclerView;
     private HistoryAdapter historyAdapter;
-    private List<HistoryItem> historyItems;
+    private List<HistoryItemD> historyItems;
     private ImageView menuIcon;
     private ImageView newIcon;
     private ImageView infoIcon;
@@ -79,6 +85,7 @@ public class BaseActivity extends AppCompatActivity {
     private CardPagerAdapter pagerAdapter;
     private View buttonPage1;
     private View buttonPage2;
+    private  int FIXED_USER_ID ;
 
     private static final int PERMISSION_REQUEST_CODE = 1;
     private SmsSender smsSender;
@@ -127,6 +134,10 @@ public class BaseActivity extends AppCompatActivity {
         smsSender = new SmsSender(this);
         serverSender = new ServerSender(apiService, smsSender, this);
 
+        AppData appData = new AppData();
+        int userId = appData.getCurrentUserId();
+        FIXED_USER_ID = userId;
+
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -145,6 +156,8 @@ public class BaseActivity extends AppCompatActivity {
         menuIcon = findViewById(R.id.menu_icon);
         newIcon = findViewById(R.id.new_icon);
         infoIcon = findViewById(R.id.info_icon);
+        ImageView logoutIcon = findViewById(R.id.logout_icon);
+        logoutIcon.setOnClickListener(v -> logout());
         buttonPage1 = findViewById(R.id.button_page1);
         buttonPage2 = findViewById(R.id.button_page2);
 
@@ -239,7 +252,7 @@ public class BaseActivity extends AppCompatActivity {
             String corpss = cursor.getString(cursor.getColumnIndexOrThrow("body"));
             String corps = "";
 
-            Message message = new Message(null, null, null, false, null, 0.0, null, null, null, 0.0, 0.0, 0);
+            Message message = new Message(null, null, 0, false, null, 0.0, null, null, null, 0.0, 0.0, 0);
             try {
                 corps = message.dechiffrer(SECRET_KEY, corpss);
                 // tu continues ton traitement ici
@@ -276,14 +289,14 @@ public class BaseActivity extends AppCompatActivity {
         final Message message = new Message(
                 f1.getDateTime(),
                 new Date(),
-                f1.getIntervention(),
+                f1.getIntervention().getIdIntervention(),
                 f1.isRenfort(),
                 f1.getDirection(),
                 f1.getSurface(),
                 f2.getPointRepere(),
                 f2.getDescription(),
                 FIXED_NUMBER,
-                0, 0, extraireIdUser(dernierSms)
+                0, 0, FIXED_USER_ID
         );
 
         // Obtenir la localisation puis envoyer le message
@@ -409,41 +422,35 @@ public void onRequestPermissionsResult(int requestCode, @NonNull String[] permis
 
     private void loadSampleData() {
         historyItems.clear();
-        historyItems.add(new HistoryItem("Feux de brousse 26/08/25", true));
-        historyItems.add(new HistoryItem("Feux de brousse 25/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 24/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 23/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 22/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
-        historyItems.add(new HistoryItem("Feux de brousse 21/08/25", false));
+
+        MessageDao messageDao = new MessageDao(this);
+        List<Message> messages = messageDao.getAllMessages();
+
+        for (Message msg : messages) {
+            historyItems.add(new HistoryItemD(
+                    msg.getDescription() + " (" + msg.getDateCommencement() + ")",
+                    false,
+                    msg.getIdMessage() // Ajoutez le troisième paramètre
+            ));
+        }
 
         historyAdapter.notifyDataSetChanged();
-
     }
-
-    private void onHistoryItemClick(HistoryItem item, int position) {
-        for (HistoryItem historyItem : historyItems) {
+    
+    private void onHistoryItemClick(HistoryItemD item, int position) {
+        for (HistoryItemD historyItem : historyItems) {
             historyItem.setSelected(false);
         }
         item.setSelected(true);
         historyAdapter.notifyDataSetChanged();
-        // updateDisplayedInformation(item);
+         // Récupérer l'id du message si besoin
+    int messageId = item.getMessageId();
+
+    // Créer l'intent pour aller vers le Dashboard
+    Intent intent = new Intent(this, DashboardActivity.class);
+    // Tu peux passer des données si nécessaire
+    intent.putExtra("MESSAGE_ID", messageId);
+    startActivity(intent);
     }
 
     @Override

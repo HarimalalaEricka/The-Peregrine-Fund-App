@@ -67,5 +67,30 @@ public class StatusMessageDao {
     cursor.close();
     return exists;
 }
+ public String getStatusNameId(int statusId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String statusName = "Inconnu";
+        Cursor cursor = null;
+
+        try {
+            cursor = db.rawQuery(
+                "SELECT " + MyDatabaseHelper.COLUMN_STATUS_NAME + 
+                " FROM " + MyDatabaseHelper.TABLE_STATUS +
+                " WHERE " + MyDatabaseHelper.COLUMN_STATUS_ID + " = ?",
+                new String[]{String.valueOf(statusId)}
+            );
+
+            if (cursor.moveToFirst()) {
+                statusName = cursor.getString(
+                    cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_STATUS_NAME)
+                );
+            }
+        } finally {
+            if (cursor != null) cursor.close();
+            db.close();
+        }
+        return statusName;
+    }
+  
 
 }

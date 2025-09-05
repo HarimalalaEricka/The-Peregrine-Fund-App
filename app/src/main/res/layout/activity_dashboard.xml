@@ -252,7 +252,16 @@
                 android:backgroundTint="@color/colorAccent"
                 android:textColor="#FFFFFF"/>
         </LinearLayout>
-        
+        <TextView
+    android:id="@+id/tv_status_message"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Déjà maîtrisé"
+    android:textColor="#000000"
+    android:textSize="16sp"
+    android:gravity="center"
+    android:visibility="gone"
+    android:layout_marginBottom="16dp"/>
         <TextView
             android:id="@+id/tv_status_history"
             android:layout_width="match_parent"

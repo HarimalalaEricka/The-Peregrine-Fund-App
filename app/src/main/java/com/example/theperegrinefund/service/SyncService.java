@@ -18,31 +18,46 @@ import com.example.theperegrinefund.HistoriqueMessageStatus;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
-
+import com.example.theperegrinefund.security.ConfigLoader;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class SyncService {
     private static final String TAG = "SyncService";
-    private static final String BASE_URL = "https://9f4616fb94ba.ngrok-free.app/sync";
+    // private static final String BASE_URL = "https://20a843da4ac4.ngrok-free.app/sync";
 
+   
     private final OkHttpClient client;
     private final Gson gson;
     private final MessageDao messageDao;
     private InterventionDao interventionDao;
     private StatusMessageDao statusDao;
     private HistoriqueMessageStatusDao historiqueDao;
-
-
-    public SyncService(Context context) {
+   private final String BASE_URL;
+    
+   public SyncService(Context context) {
         client = new OkHttpClient();
         gson = new Gson();
         messageDao = new MessageDao(context);
         interventionDao = new InterventionDao(context);
         statusDao = new StatusMessageDao(context);
         historiqueDao = new HistoriqueMessageStatusDao(context);
+
+        String url;
+        try {
+            url = ConfigLoader.getServerUrl(context);
+            Log.d(TAG, "✅ URL chargée depuis config.properties : " + url);
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Impossible de charger l'URL du serveur, utilisation de fallback", e);
+            url = "https://9f4616fb94ba.ngrok-free.app"; // fallback si jamais ton fichier est absent
+        }
+
+        BASE_URL = url + "/sync";
+       
     }
+
+
     public interface MessageCallback {
         void onComplete(List<Message> messages);
         void onError(Exception e);

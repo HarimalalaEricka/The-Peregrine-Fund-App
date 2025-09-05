@@ -5,7 +5,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
@@ -14,14 +13,14 @@ import java.util.List;
  */
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder> {
 
-    private List<HistoryItem> historyItems;
+    private List<HistoryItemD> historyItems;
     private OnHistoryItemClickListener clickListener;
 
     /**
      * Interface pour gérer les clics sur les éléments
      */
     public interface OnHistoryItemClickListener {
-        void onHistoryItemClick(HistoryItem item, int position);
+        void onHistoryItemClick(HistoryItemD item, int position);
     }
 
     /**
@@ -29,7 +28,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
      * @param historyItems Liste des éléments d'historique
      * @param clickListener Listener pour les clics
      */
-    public HistoryAdapter(List<HistoryItem> historyItems, OnHistoryItemClickListener clickListener) {
+    public HistoryAdapter(List<HistoryItemD> historyItems, OnHistoryItemClickListener clickListener) {
         this.historyItems = historyItems;
         this.clickListener = clickListener;
     }
@@ -44,7 +43,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
 
     @Override
     public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
-        HistoryItem item = historyItems.get(position);
+        HistoryItemD item = historyItems.get(position);
         holder.bind(item, position);
     }
 
@@ -69,8 +68,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
          * @param item L'élément d'historique
          * @param position La position dans la liste
          */
-        public void bind(HistoryItem item, int position) {
-            textView.setText(item.getText());
+        public void bind(HistoryItemD item, int position) {
+            textView.setText(item.getTitle());
 
             // Configuration du style selon l'état de sélection
             if (item.isSelected()) {
@@ -86,34 +85,5 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
                 }
             });
         }
-    }
-}
-
-/**
- * Modèle de données pour un élément d'historique
- */
-class HistoryItem {
-    private String text;
-    private boolean selected;
-
-    public HistoryItem(String text, boolean selected) {
-        this.text = text;
-        this.selected = selected;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public boolean isSelected() {
-        return selected;
-    }
-
-    public void setSelected(boolean selected) {
-        this.selected = selected;
     }
 }

@@ -1,198 +1,159 @@
 .\gradlew assembleDebug
-adb install -r .\app\build\outputs\apk\debug\app-debug.apk
-public class SyncService {
-    private static final String BASE_URL = "https://d18649688661.ngrok-free.app/sync";
-    private OkHttpClient client;
-    private Gson gson;
-    private MessageDao messageDao;
+adb install -r .\app\build\outputs\apk\debug\app-debug.apkpackage com.example.theperegrinefund;
 
-    public SyncService(Context context) {
-        client = new OkHttpClient();
-        gson = new Gson();
-        messageDao = new MessageDao(context);
-    }
-
-    public void downloadMessages(int idUser, Runnable onComplete) {
-        String url = BASE_URL + "/download/" + idUser;
-
-        new Thread(() -> {
-            try {
-                Request request = new Request.Builder().url(url).build();
-                Response response = client.newCall(request).execute();
-
-                if (response.isSuccessful() && response.body() != null) {
-                    String json = response.body().string();
-                    
-                    // Vérifier si le JSON n'est pas vide
-                    if (json.trim().isEmpty()) {
-                        Log.w("SYNC", "JSON vide reçu du serveur");
-                        return;
-                    }
-
-                    Type listType = new TypeToken<List<Message>>() {}.getType();
-                    List<Message> messages = gson.fromJson(json, listType);
-
-                    if (messages != null) {
-                        for (Message msg : messages) {
-                            messageDao.insertMessage(msg);
-                        }
-                        Log.d("SYNC", "Messages téléchargés et insérés : " + messages.size());
-                    } else {
-                        Log.e("SYNC", "Échec de parsing JSON : liste null");
-                    }
-                } else {
-                    Log.e("SYNC", "Erreur HTTP : " + response.code());
-                }
-            } catch (Exception e) {
-                Log.e("SYNC", "Exception lors du téléchargement", e);
-            } finally {
-                if (onComplete != null) {
-                    // Mettre à jour l'UI après le téléchargement
-                    new android.os.Handler(android.os.Looper.getMainLooper()).post(onComplete);
-                }
-            }
-        }).start();
-    }
-}
-https://d18649688661.ngrok-free.app/sync
-
-
-package com.example.theperegrinefund.service;
-
-import android.content.Context;
+import android.widget.Toast;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import android.util.Log;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import com.example.theperegrinefund.security.ConfigLoader;
+import com.example.theperegrinefund.security.CryptoUtils;
+import com.example.theperegrinefund.database.MyDatabaseHelper;
+import com.example.theperegrinefund.database.HistoriqueMessageStatusDao;
+import com.example.theperegrinefund.models.HistoriqueMessageStatus;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import java.util.Date;
 
-import com.example.theperegrinefund.Message;
-import com.example.theperegrinefund.Intervention;
-import com.example.theperegrinefund.StatusMessage;
-import com.example.theperegrinefund.HistoriqueMessageStatus;
+public class ServerSender {
 
-import com.example.theperegrinefund.dao.MessageDao;
-import com.example.theperegrinefund.dao.InterventionDao;
-import com.example.theperegrinefund.dao.StatusMessageDao;
-import com.example.theperegrinefund.dao.HistoriqueMessageStatusDao;
+    private final ApiService apiService;
+    private final SmsSender smsSender;
+    private final Context context;
+    private String SECRET_KEY;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.List;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
-public class SyncService {
-    private static final String TAG = "SyncService";
-    private static final String BASE_URL = "https://9f4616fb94ba.ngrok-free.app/sync";
-
-    private final OkHttpClient client;
-    private final Gson gson;
-    private final MessageDao messageDao;
-    private final InterventionDao interventionDao;
-    private final StatusMessageDao statusDao;
-    private final HistoriqueMessageStatusDao historiqueDao;
-
-    public SyncService(Context context) {
-        client = new OkHttpClient();
-        gson = new Gson();
-        messageDao = new MessageDao(context);
-        interventionDao = new InterventionDao(context);
-        statusDao = new StatusMessageDao(context);
-        historiqueDao = new HistoriqueMessageStatusDao(context);
+    public ServerSender(ApiService apiService, SmsSender smsSender, Context context) {
+        this.apiService = apiService;
+        this.smsSender = smsSender;
+        this.context = context;
+        try {
+            SECRET_KEY = ConfigLoader.getSecretKey(context);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public interface SyncCallback<T> {
-        void onComplete(List<T> items);
-        void onError(Exception e);
-    }
+    public void send(Message message, String status) {
+        String content = formatMessage(message, status);
 
-    // --- Messages ---
-    public void downloadMessages(int idUser, SyncCallback<Message> callback) {
-        String url = BASE_URL + "/download/" + idUser;
-        downloadGeneric(url, Message.class, item -> {
-            item.setIdUserApp(idUser);
-            messageDao.insertMessage(item);
-        }, callback);
-    }
+        final String encryptedContent;
+        try {
+            encryptedContent = message.chiffrer(SECRET_KEY, content);
+        } catch (Exception e) {
+            Toast.makeText(context, "Erreur lors du chiffrement : " + e.getMessage(), Toast.LENGTH_LONG).show();
+            return; // on stoppe ici si le chiffrement échoue
+        }
 
-    // --- Interventions ---
-    public void downloadInterventions(SyncCallback<Intervention> callback) {
-        String url = BASE_URL + "/interventions";
-        downloadGeneric(url, Intervention.class, interventionDao::insertIntervention, callback);
-    }
-
-    // --- Status Messages ---
-    public void downloadStatusMessages(SyncCallback<StatusMessage> callback) {
-        String url = BASE_URL + "/status";
-        downloadGeneric(url, StatusMessage.class, statusDao::insertStatus, callback);
-    }
-
-    // --- Historique Messages ---
-    public void downloadHistoriqueMessages(int idUser, SyncCallback<HistoriqueMessageStatus> callback) {
-        String url = BASE_URL + "/historique/" + idUser;
-        downloadGeneric(url, HistoriqueMessageStatus.class, historiqueDao::insertHistorique, callback);
-    }
-
-    // Méthode générique avec callback
-    private <T> void downloadGeneric(String url, Class<T> clazz, java.util.function.Consumer<T> insertFunction, SyncCallback<T> callback) {
-        Request request = new Request.Builder().url(url).build();
-
-        new Thread(() -> {
-            try {
-                Response response = client.newCall(request).execute();
-                if (response.isSuccessful() && response.body() != null) {
-                    String json = response.body().string();
-                    Type listType = TypeToken.getParameterized(List.class, clazz).getType();
-                    List<T> items = gson.fromJson(json, listType);
-
-                    for (T item : items) {
-                        insertFunction.accept(item);
-                    }
-
-                    Log.d(TAG, clazz.getSimpleName() + " téléchargé : " + items.size());
-                    if (callback != null) callback.onComplete(items);
+        Call<Void> call = apiService.sendEncryptedMessage(encryptedContent);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    int newId = message.save(context);
+                    // message.setIdMessage(newId);
+                    // MyDatabaseHelper dbHelper = new MyDatabaseHelper(context);
+                    // int idStatus = dbHelper.getIdStatusMessage(status);
+                    // StatusMessage statusMessage = new StatusMessage(idStatus, status);
+                    // HistoriqueMessageStatus historique = new HistoriqueMessageStatus(new Date(), statusMessage, message);
+                    // historique.save(context);
+                    Toast.makeText(context, "Message envoyé au serveur!", Toast.LENGTH_SHORT).show();
                 } else {
-                    Log.e(TAG, "Erreur HTTP : " + response.code() + " pour " + clazz.getSimpleName());
-                    if (callback != null) callback.onError(new IOException("HTTP " + response.code()));
+                    Toast.makeText(context, "Erreur serveur", Toast.LENGTH_SHORT).show();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (callback != null) callback.onError(e);
             }
-        }).start();
-    }
-}
 
-   /*  public void downloadMessages(int idUser, SyncCallback callback) {
-            String url = BASE_URL + "/download/" + idUser;
-
-            Request request = new Request.Builder().url(url).build();
-
-            new Thread(() -> {
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(context, "Impossible de joindre le serveur. Envoi par SMS...", Toast.LENGTH_SHORT).show();
                 try {
-                    Response response = client.newCall(request).execute();
-                    if (response.isSuccessful() && response.body() != null) {
-                        String json = response.body().string();
-                        Type listType = new TypeToken<List<Message>>() {}.getType();
-                        List<Message> messages = gson.fromJson(json, listType);
-
-                        for (Message msg : messages) {
-                            msg.setIdUserApp(idUser); // lier à l'utilisateur local
-                            messageDao.insertMessage(msg);
-                        }
-
-                        Log.d("SYNC", "Messages téléchargés : " + messages.size());
-                        if (callback != null) callback.onComplete(messages);
-
-                    } else {
-                        Log.e("SYNC", "Erreur HTTP : " + response.code());
-                        if (callback != null) callback.onError(new IOException("HTTP " + response.code()));
-                    }
+                    smsSender.send(message, status);
+                    Toast.makeText(context, "Message envoyé par SMS!", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    if (callback != null) callback.onError(e);
+                    Toast.makeText(context, "Erreur SMS : " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
-            }).start();
-        }*/
+            }
+                });
+            }
+
+
+
+    public String formatMessage(Message message, String status) {
+        MyDatabaseHelper dbHelper = new MyDatabaseHelper(context);
+        int idStatus = dbHelper.getIdStatusMessage(status);
+        if (message == null) return "";
+        
+
+        return message.getDateCommencement() + "/" +
+               message.getDateSignalement() + "/" +
+               message.getIdIntervention() + "/" +
+               message.isRenfort() + "/" +
+               message.getDirection() + "/" +
+               message.getSurfaceApproximative() + "/" +
+               message.getPointRepere() + "/" +
+               message.getDescription() + "/" +
+               message.getIdUserApp() +  "/" + // exemple pour UserApp
+               message.getLongitude() + "/" +
+               message.getLatitude() + "/" +
+               idStatus;
+    }
+    public String formatHistorique(HistoriqueMessageStatus historique) {
+        HistoriqueMessageStatusDao historiqueDao = new HistoriqueMessageStatusDao(context);
+      
+        if (historique == null) return "";
+        
+
+        return historique.getDateChangement() + "/" +
+               historique.getIdMessage() + "/" +
+               historique.getIdStatusMessage();
+    }
+
+     public void sendHistory(HistoriqueMessageStatus historique) {
+        String content = formatHistorique(historique);
+        HistoriqueMessageStatusDao historiqueDao = new HistoriqueMessageStatusDao(context);
+
+        final String encryptedContent;
+        try {
+            CryptoUtils crypto = new CryptoUtils(historique);
+            encryptedContent = crypto.chiffrer(SECRET_KEY);
+        } catch (Exception e) {
+            Toast.makeText(context, "Erreur lors du chiffrement : " + e.getMessage(), Toast.LENGTH_LONG).show();
+            return; // on stoppe ici si le chiffrement échoue
+        }
+
+        Call<Void> call = apiService.sendEncryptedMessage(encryptedContent);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Long newId = historiqueDao.insertHistorique(historique);
+                    // message.setIdMessage(newId);
+                    // MyDatabaseHelper dbHelper = new MyDatabaseHelper(context);
+                    // int idStatus = dbHelper.getIdStatusMessage(status);
+                    // StatusMessage statusMessage = new StatusMessage(idStatus, status);
+                    // HistoriqueMessageStatus historique = new HistoriqueMessageStatus(new Date(), statusMessage, message);
+                    // historique.save(context);
+                    Toast.makeText(context, "Message envoyé au serveur!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Erreur serveur", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(context, "Impossible de joindre le serveur. Envoi par SMS...", Toast.LENGTH_SHORT).show();
+                try {
+                    smsSender.send(message, status);
+                    Toast.makeText(context, "Message envoyé par SMS!", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Toast.makeText(context, "Erreur SMS : " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+     
+}
+}
