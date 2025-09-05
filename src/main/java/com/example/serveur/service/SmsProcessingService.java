@@ -7,6 +7,7 @@ import com.example.serveur.util.EncryptionUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
 import java.util.Optional;
 
 @Service
@@ -24,18 +25,23 @@ public class SmsProcessingService {
         this.separateur = separateur;
     }
 
-    public String processMessage(String messageChiffre, String phoneNumber) {
-        String messageClair;
-        boolean estChiffre = true;
-
-        try {
-            messageClair = encryptionUtil.dechiffrer(messageChiffre);
-        } catch (Exception e) {
-            messageClair = messageChiffre;
-            estChiffre = false;
+    public String processMessage(String messageChiffre, String phoneNumber) throws Exception {
+        // Vérifier si le message est déjà en clair
+        if (!isBase64(messageChiffre)) {
+            return messageChiffre; // Déjà en clair
         }
+        
+        // Sinon déchiffrer normalement
+        return encryptionUtil.dechiffrer(messageChiffre);
+    }
 
-        return messageClair;
+    private boolean isBase64(String str) {
+        try {
+            Base64.getDecoder().decode(str);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     public TypeMessage determineMessageType(String message) {

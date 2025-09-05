@@ -1,18 +1,22 @@
 package com.example.serveur.model;
 
-// TypeAlerte.java
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "TypeAlerte")
+@Table(name = "typealerte")
 public class TypeAlerte {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_TypeAlerte;
-
-    @Column(nullable = false, unique = true)
-    private String Zone;
-
-    // getters & setters
+    @Column(name = "id_typealerte")
+    private int idTypeAlerte;
+    
+    @Column(name = "zone", nullable = false)
+    private String zone;
+    
+    // Getters et setters
+    public int getIdTypeAlerte() { return idTypeAlerte; }
+    public void setIdTypeAlerte(int idTypeAlerte) { this.idTypeAlerte = idTypeAlerte; }
+    
+    public String getZone() { return zone; }
+    public void setZone(String zone) { this.zone = zone; }
 }
-

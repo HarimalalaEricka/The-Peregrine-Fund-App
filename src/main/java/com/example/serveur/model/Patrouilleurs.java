@@ -15,7 +15,7 @@ public class Patrouilleurs {
     private String dateRecrutement;  // VARCHAR(50) en DB
 
     @ManyToOne
-    @JoinColumn(name = "idSite")  // clé étrangère vers Site
+    @JoinColumn(name = "id_site")  // clé étrangère vers Site
     private Site site;
 
     public Patrouilleurs() {}  // constructeur vide pour JPA

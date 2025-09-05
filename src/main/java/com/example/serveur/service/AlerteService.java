@@ -1,9 +1,13 @@
 package com.example.serveur.service;
 
 import com.example.serveur.model.HistoriqueMessageStatus;
+import com.example.serveur.model.Intervention;
 import com.example.serveur.model.Message;
+import com.example.serveur.model.StatusMessage;
 import com.example.serveur.repository.HistoriqueMessageStatusRepository;
 import com.example.serveur.repository.MessageRepository;
+import com.example.serveur.repository.InterventionRepository;
+import com.example.serveur.repository.StatusMessageRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,18 +21,33 @@ public class AlerteService {
     
     private final MessageRepository messageRepository;
     private final HistoriqueMessageStatusRepository historiqueRepository;
+    private final InterventionRepository interventionRepository;
+    private final StatusMessageRepository statusMessageRepository;
+    private final NiveauAlerteService niveauAlerteService;
+    private final InfoRetourService infoRetourService; // ← Nouveau service
+    private final SmsResponseService smsResponseService; // ← Pour envoyer la réponse
     
-    public AlerteService(MessageRepository messageRepository, 
-                        HistoriqueMessageStatusRepository historiqueRepository) {
+    public AlerteService(MessageRepository messageRepository,
+                        HistoriqueMessageStatusRepository historiqueRepository,
+                        InterventionRepository interventionRepository,
+                        StatusMessageRepository statusMessageRepository,
+                        NiveauAlerteService niveauAlerteService,
+                        InfoRetourService infoRetourService,
+                        SmsResponseService smsResponseService) {
         this.messageRepository = messageRepository;
         this.historiqueRepository = historiqueRepository;
+        this.interventionRepository = interventionRepository;
+        this.statusMessageRepository = statusMessageRepository;
+        this.niveauAlerteService = niveauAlerteService;
+        this.infoRetourService = infoRetourService;
+        this.smsResponseService = smsResponseService;
     }
     
     /**
      * Traite un message d'alerte et l'insère en base de données
      */
     @Transactional
-    public String processAlerte(String messageAlerte) {
+    public String processAlerte(String messageAlerte, Integer idSite, String phoneNumber) {
         try {
             String[] parties = messageAlerte.split("/", -1);
             
@@ -53,8 +72,8 @@ public class AlerteService {
             String pointRepere = emptyToNull(parties[6]);
             String description = emptyToNull(parties[7]);
             Integer idUserApp = parseInt(parties[8]); // Ceci est crucial!
-            BigDecimal longitude = parseBigDecimal(parties[9]);
-            BigDecimal latitude = parseBigDecimal(parties[10]);
+            BigDecimal longitude = parseBigDecimal(parties[10]);
+            BigDecimal latitude = parseBigDecimal(parties[9]);
             Integer idStatus = parseInt(parties[11]);
             
             // Validation renforcée des champs obligatoires
@@ -79,7 +98,7 @@ public class AlerteService {
             
             System.out.println("✅ Données parsées - ID UserApp: " + idUserApp);
 
-            if (isDuplicateMessage(dateCommencement, dateSignalement, idIntervention, idUserApp)) {
+            if (isDuplicateMessage(longitude, latitude)) {
                 return "⚠️ Message déjà existant - Doublon ignoré";
             }
             
@@ -107,21 +126,59 @@ public class AlerteService {
             
             historiqueRepository.save(historique);
             
-            return "Alerte enregistrée avec succès! ID: " + savedMessage.getIdMessage();
+            // DÉTERMINER LE NIVEAU D'ALERTE
+            // Récupérer le texte du status et de l'intervention
+            String statusText = getStatusTextById(idStatus);
+            String interventionText = getInterventionTextById(idIntervention);
+
+            System.out.println("🔍 Debug Alerte - Status: " + statusText + 
+                  ", Intervention: " + interventionText + 
+                  ", Renfort: " + renfort);
+            
+            niveauAlerteService.traiterAlerteComplete(
+                statusText, interventionText, renfort, idSite, savedMessage.getIdMessage().intValue());
+
+            // GÉNÉRER ET ENVOYER L'INFO DE RETOUR
+            String infoRetour = infoRetourService.genererInfoRetour(savedMessage);
+            smsResponseService.sendResponse(phoneNumber, infoRetour);
+            
+            // return "✅ Alerte enregistrée avec succès! ID: " + savedMessage.getIdMessage() + 
+            //        ", Niveau: " + niveauAlerte;
+
+            return infoRetour;
             
         } catch (Exception e) {
             System.err.println("❌ Erreur détaillée lors du traitement de l'alerte: " + e.getMessage());
             e.printStackTrace();
             return "❌ Erreur lors du traitement de l'alerte: " + e.getMessage();
+        } 
+    }
+
+    private String getStatusTextById(Integer idStatus) {
+        if (idStatus == null) return "Inconnu";
+        try {
+            return statusMessageRepository.findById(idStatus)
+                .map(StatusMessage::getStatus)
+                .orElse("Inconnu");
+        } catch (Exception e) {
+            return "Inconnu";
+        }
+    }
+    
+    private String getInterventionTextById(Integer idIntervention) {
+        if (idIntervention == null) return "Inconnu";
+        try {
+            return interventionRepository.findById(idIntervention.longValue())
+                .map(Intervention::getIntervention)
+                .orElse("Inconnu");
+        } catch (Exception e) {
+            return "Inconnu";
         }
     }
 
-    private boolean isDuplicateMessage(LocalDateTime dateCommencement, 
-                                     LocalDateTime dateSignalement, 
-                                     Integer idIntervention, 
-                                     Integer idUserApp) {
+    private boolean isDuplicateMessage(BigDecimal Longitude, BigDecimal Latitude) {
         return messageRepository.existsByDetails(
-            dateCommencement, dateSignalement, idIntervention, idUserApp);
+            Longitude, Latitude);
     }
 
     // Méthodes utilitaires pour le parsing

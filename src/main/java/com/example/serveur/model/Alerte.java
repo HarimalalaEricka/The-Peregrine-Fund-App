@@ -3,56 +3,32 @@ package com.example.serveur.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Alerte")
+@Table(name = "alerte")
 public class Alerte {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_Alerte;
-
-    @ManyToOne
-    @JoinColumn(name = "Id_Site", nullable = false)
-    private Site site;
-
-    @ManyToOne
-    @JoinColumn(name = "Id_Message", nullable = false)
-    private Message message;
-
-    @ManyToOne
-    @JoinColumn(name = "Id_TypeAlerte", nullable = false)
-    private TypeAlerte typeAlerte;
-
-    // Getters et Setters
-
-    public Integer getId_Alerte() {
-        return id_Alerte;
-    }
-
-    public void setId_Alerte(Integer id_Alerte) {
-        this.id_Alerte = id_Alerte;
-    }
-
-    public Site getSite() {
-        return site;
-    }
-
-    public void setSite(Site site) {
-        this.site = site;
-    }
-
-    public Message getMessage() {
-        return message;
-    }
-
-    public void setMessage(Message message) {
-        this.message = message;
-    }
-
-    public TypeAlerte getTypeAlerte() {
-        return typeAlerte;
-    }
-
-    public void setTypeAlerte(TypeAlerte typeAlerte) {
-        this.typeAlerte = typeAlerte;
-    }
+    @Column(name = "id_alerte")
+    private Long idAlerte;
+    
+    @Column(name = "id_site", nullable = false)
+    private Integer idSite;
+    
+    @Column(name = "id_message", nullable = false)
+    private Integer idMessage;
+    
+    @Column(name = "id_typealerte", nullable = false)
+    private Integer idTypeAlerte;
+    
+    // Getters et setters
+    public Long getIdAlerte() { return idAlerte; }
+    public void setIdAlerte(Long idAlerte) { this.idAlerte = idAlerte; }
+    
+    public Integer getIdSite() { return idSite; }
+    public void setIdSite(Integer idSite) { this.idSite = idSite; }
+    
+    public Integer getIdMessage() { return idMessage; }
+    public void setIdMessage(Integer idMessage) { this.idMessage = idMessage; }
+    
+    public Integer getIdTypeAlerte() { return idTypeAlerte; }
+    public void setIdTypeAlerte(Integer idTypeAlerte) { this.idTypeAlerte = idTypeAlerte; }
 }

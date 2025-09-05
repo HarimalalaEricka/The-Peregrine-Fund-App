@@ -1,7 +1,6 @@
 package com.example.serveur.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.util.List;
 
 @Entity
 @Table(name = "Site")
@@ -22,14 +21,6 @@ public class Site {
 
     private BigDecimal latitude;
     private BigDecimal longitude;
-
-    // Exemple de relation avec Patrouilleurs si besoin
-    @OneToMany(mappedBy = "site")
-    private List<Patrouilleurs> patrouilleurs;
-
-    // Exemple de relation avec Alerte
-    @OneToMany(mappedBy = "site")
-    private List<Alerte> alertes;
 
     // Getters et Setters
     public Integer getId_Site() { return id_Site; }
@@ -52,10 +43,4 @@ public class Site {
 
     public BigDecimal getLongitude() { return longitude; }
     public void setLongitude(BigDecimal longitude) { this.longitude = longitude; }
-
-    public List<Patrouilleurs> getPatrouilleurs() { return patrouilleurs; }
-    public void setPatrouilleurs(List<Patrouilleurs> patrouilleurs) { this.patrouilleurs = patrouilleurs; }
-
-    public List<Alerte> getAlertes() { return alertes; }
-    public void setAlertes(List<Alerte> alertes) { this.alertes = alertes; }
 }

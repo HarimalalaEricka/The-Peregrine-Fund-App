@@ -6,6 +6,7 @@ import com.example.serveur.service.SmsProcessingService;
 import com.example.serveur.service.SmsResponseService;
 import com.example.serveur.service.AllowedNumbersService;
 import com.example.serveur.service.AlerteService;
+import com.example.serveur.service.SiteService;
 
 import jakarta.annotation.PostConstruct;
 
@@ -22,17 +23,20 @@ public class ServeurController {
     private final SmsLoggingService smsLoggingService;
     private final AllowedNumbersService allowedNumbersService;
     private final AlerteService alerteService;
+    private final SiteService siteService; // ← Nouveau service
 
     public ServeurController(SmsProcessingService smsProcessingService,
                             SmsResponseService smsResponseService,
                             SmsLoggingService smsLoggingService,
                             AllowedNumbersService allowedNumbersService,
-                            AlerteService alerteService) {
+                            AlerteService alerteService,
+                            SiteService siteService) { // ← Injection
         this.smsProcessingService = smsProcessingService;
         this.smsResponseService = smsResponseService;
         this.smsLoggingService = smsLoggingService;
         this.allowedNumbersService = allowedNumbersService;
         this.alerteService = alerteService;
+        this.siteService = siteService; // ← Initialisation
     }
 
 
@@ -46,10 +50,11 @@ public class ServeurController {
         EncryptionUtil encryptionUtil= new EncryptionUtil("0123456789abcdef");
 
         try {
-            String chiffre = encryptionUtil.chiffrer(message);
+            String dechiffre = encryptionUtil.dechiffrer(message);
 
-            String dechiffre = encryptionUtil.dechiffrer(chiffre);
+            String chiffre = encryptionUtil.chiffrer(dechiffre);
 
+            
             
             return String.format("""
                 Original: %s
@@ -68,7 +73,7 @@ public class ServeurController {
     }
 
     @PostMapping("/webhook")
-    public SmsResponse handleSmsWebhook(@RequestBody GatewayWebhookRequest webhookRequest) {
+    public SmsResponse handleSmsWebhook(@RequestBody GatewayWebhookRequest webhookRequest) throws Exception {
 
         if (!"sms:received".equals(webhookRequest.getEvent())) {
             return smsResponseService.createErrorResponse("Event non supporté");
@@ -105,8 +110,14 @@ public class ServeurController {
                 
             case ALERTE:
                 System.out.println("🚨 Alerte détectée - Traitement spécialisé");
-                reponseAccuse = alerteService.processAlerte(messageClair);
-                System.out.println("Résultat traitement alerte: " + reponseAccuse);
+                Integer idSite = siteService.determinerIdSite(phoneNumber);
+                
+                if (idSite != null) {
+                    // Passez maintenant le numéro de téléphone aussi
+                    reponseAccuse = alerteService.processAlerte(messageClair, idSite, phoneNumber);
+                } else {
+                    reponseAccuse = "❌ Impossible de déterminer le site";
+                }
                 break;
         }
 
