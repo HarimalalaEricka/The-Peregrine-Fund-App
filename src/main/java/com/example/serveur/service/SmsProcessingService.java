@@ -72,8 +72,10 @@ public class SmsProcessingService {
             String[] parties = message.split("\\" + separateur);
             String login = parties[0].trim();
             
-            Optional<UserApp> userOpt = userAppRepository.findByLogin(login);
-            return userOpt.map(user -> user.getIdUserApp().toString()).orElse("inconnu");
+            return userAppRepository.findIdByLogin(login)
+                        .map(String::valueOf)
+                        .orElse("inconnu");
+
         } catch (Exception e) {
             return "inconnu";
         }

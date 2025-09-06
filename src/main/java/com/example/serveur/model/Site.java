@@ -1,6 +1,5 @@
 package com.example.serveur.model;
 import jakarta.persistence.*;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "Site")
@@ -16,11 +15,11 @@ public class Site {
     @Column(nullable = false)
     private String Region;
 
-    private BigDecimal Surface;
+    private Double Surface;
     private String Decree;
 
-    private BigDecimal latitude;
-    private BigDecimal longitude;
+    private Double latitude;
+    private Double longitude;
 
     // Getters et Setters
     public Integer getId_Site() { return id_Site; }
@@ -32,15 +31,15 @@ public class Site {
     public String getRegion() { return Region; }
     public void setRegion(String Region) { this.Region = Region; }
 
-    public BigDecimal getSurface() { return Surface; }
-    public void setSurface(BigDecimal Surface) { this.Surface = Surface; }
+    public Double getSurface() { return Surface; }
+    public void setSurface(Double Surface) { this.Surface = Surface; }
 
     public String getDecree() { return Decree; }
     public void setDecree(String Decree) { this.Decree = Decree; }
 
-    public BigDecimal getLatitude() { return latitude; }
-    public void setLatitude(BigDecimal latitude) { this.latitude = latitude; }
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
 
-    public BigDecimal getLongitude() { return longitude; }
-    public void setLongitude(BigDecimal longitude) { this.longitude = longitude; }
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
 }

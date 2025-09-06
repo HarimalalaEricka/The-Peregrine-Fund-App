@@ -79,7 +79,7 @@ public class InfoRetourService {
             // Compter par niveau d'alerte
             Map<String, Long> countByNiveau = alerteRepository.findAll().stream()
                 .collect(Collectors.groupingBy(
-                    alerte -> getNiveauAlerte(alerte.getIdTypeAlerte()),
+                    alerte -> getNiveauAlerte(alerte.getTypeAlerte().getIdTypeAlerte()),
                     Collectors.counting()
                 ));
             

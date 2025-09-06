@@ -8,7 +8,7 @@ public class UserApp {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "iduserapp")
-    private Long idUserApp;
+    private int idUserApp;
     
     @Column(name = "motdepasse")
     private String motDePasse;
@@ -20,8 +20,8 @@ public class UserApp {
     private Patrouilleurs patrouilleur;
     
     // Getters et Setters
-    public Long getIdUserApp() { return idUserApp; }
-    public void setIdUserApp(Long idUserApp) { this.idUserApp = idUserApp; }
+    public int getIdUserApp() { return idUserApp; }
+    public void setIdUserApp(int idUserApp) { this.idUserApp = idUserApp; }
     
     public String getMotDePasse() { return motDePasse; }
     public void setMotDePasse(String motDePasse) { this.motDePasse = motDePasse; }

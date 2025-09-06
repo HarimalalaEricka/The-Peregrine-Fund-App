@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface InterventionRepository extends JpaRepository<Intervention, Long> {
+public interface InterventionRepository extends JpaRepository<Intervention, Integer> {
     @Query("SELECT i FROM Intervention i WHERE i.intervention = :intervention")
     Intervention findByType(@Param("intervention") String intervention);
 }

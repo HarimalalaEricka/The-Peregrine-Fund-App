@@ -8,27 +8,40 @@ public class Alerte {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_alerte")
-    private Long idAlerte;
+    private int idAlerte;
     
-    @Column(name = "id_site", nullable = false)
-    private Integer idSite;
+    @ManyToOne
+    @JoinColumn(name = "id_site", nullable = false)
+    private Site site;
     
-    @Column(name = "id_message", nullable = false)
-    private Integer idMessage;
+    @ManyToOne
+    @JoinColumn(name = "id_message", nullable = false)
+    private Message message;
+
+    @ManyToOne
+    @JoinColumn(name = "id_typealerte", nullable = false)
+    private TypeAlerte typeAlerte;
+
+    // Constructeurs
+    public Alerte() {}
     
-    @Column(name = "id_typealerte", nullable = false)
-    private Integer idTypeAlerte;
+    public Alerte(Site site, Message message, TypeAlerte typeAlerte) {
+        this.site = site;
+        this.message = message;
+        this.typeAlerte = typeAlerte;
+    }    
     
     // Getters et setters
-    public Long getIdAlerte() { return idAlerte; }
-    public void setIdAlerte(Long idAlerte) { this.idAlerte = idAlerte; }
+    public int getIdAlerte() { return idAlerte; }
+    public void setIdAlerte(int idAlerte) { this.idAlerte = idAlerte; }
     
-    public Integer getIdSite() { return idSite; }
-    public void setIdSite(Integer idSite) { this.idSite = idSite; }
+    public Site getSite() { return site; }
+    public void setSite(Site site) { this.site = site; }
     
-    public Integer getIdMessage() { return idMessage; }
-    public void setIdMessage(Integer idMessage) { this.idMessage = idMessage; }
+    public Message getMessage() { return message; }
+    public void setMessage(Message message) { this.message = message; }
     
-    public Integer getIdTypeAlerte() { return idTypeAlerte; }
-    public void setIdTypeAlerte(Integer idTypeAlerte) { this.idTypeAlerte = idTypeAlerte; }
+    public TypeAlerte getTypeAlerte() { return typeAlerte; }
+    public void setTypeAlerte(TypeAlerte typeAlerte) { this.typeAlerte = typeAlerte; }
+
 }

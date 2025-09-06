@@ -4,17 +4,19 @@ import com.example.serveur.model.HistoriqueMessageStatus;
 import com.example.serveur.model.Intervention;
 import com.example.serveur.model.Message;
 import com.example.serveur.model.StatusMessage;
+import com.example.serveur.model.UserApp;
 import com.example.serveur.repository.HistoriqueMessageStatusRepository;
 import com.example.serveur.repository.MessageRepository;
 import com.example.serveur.repository.InterventionRepository;
 import com.example.serveur.repository.StatusMessageRepository;
+import com.example.serveur.repository.UserAppRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
 @Service
 public class AlerteService {
@@ -23,14 +25,16 @@ public class AlerteService {
     private final HistoriqueMessageStatusRepository historiqueRepository;
     private final InterventionRepository interventionRepository;
     private final StatusMessageRepository statusMessageRepository;
+    private final UserAppRepository userAppRepository;
     private final NiveauAlerteService niveauAlerteService;
-    private final InfoRetourService infoRetourService; // ← Nouveau service
-    private final SmsResponseService smsResponseService; // ← Pour envoyer la réponse
+    private final InfoRetourService infoRetourService;
+    private final SmsResponseService smsResponseService;
     
     public AlerteService(MessageRepository messageRepository,
                         HistoriqueMessageStatusRepository historiqueRepository,
                         InterventionRepository interventionRepository,
                         StatusMessageRepository statusMessageRepository,
+                        UserAppRepository userAppRepository,
                         NiveauAlerteService niveauAlerteService,
                         InfoRetourService infoRetourService,
                         SmsResponseService smsResponseService) {
@@ -38,6 +42,7 @@ public class AlerteService {
         this.historiqueRepository = historiqueRepository;
         this.interventionRepository = interventionRepository;
         this.statusMessageRepository = statusMessageRepository;
+        this.userAppRepository = userAppRepository;
         this.niveauAlerteService = niveauAlerteService;
         this.infoRetourService = infoRetourService;
         this.smsResponseService = smsResponseService;
@@ -68,12 +73,12 @@ public class AlerteService {
             Integer idIntervention = parseInt(parties[2]);
             Boolean renfort = parseBoolean(parties[3]);
             String direction = emptyToNull(parties[4]);
-            BigDecimal surfaceApproximative = parseBigDecimal(parties[5]);
+            Double surfaceApproximative = parseDouble(parties[5]);
             String pointRepere = emptyToNull(parties[6]);
             String description = emptyToNull(parties[7]);
-            Integer idUserApp = parseInt(parties[8]); // Ceci est crucial!
-            BigDecimal longitude = parseBigDecimal(parties[10]);
-            BigDecimal latitude = parseBigDecimal(parties[9]);
+            Integer idUserApp = parseInt(parties[8]);
+            Double longitude = parseDouble(parties[10]);
+            Double latitude = parseDouble(parties[9]);
             Integer idStatus = parseInt(parties[11]);
             
             // Validation renforcée des champs obligatoires
@@ -102,17 +107,33 @@ public class AlerteService {
                 return "⚠️ Message déjà existant - Doublon ignoré";
             }
             
+            // Vérifier que les entités référencées existent
+            Optional<Intervention> interventionOpt = interventionRepository.findById(idIntervention);
+            if (interventionOpt.isEmpty()) {
+                return "❌ Intervention non trouvée avec ID: " + idIntervention;
+            }
+            
+            Optional<UserApp> userAppOpt = userAppRepository.findById(idUserApp);
+            if (userAppOpt.isEmpty()) {
+                return "❌ UserApp non trouvé avec ID: " + idUserApp;
+            }
+            
+            Optional<StatusMessage> statusOpt = statusMessageRepository.findById(idStatus);
+            if (statusOpt.isEmpty()) {
+                return "❌ Status non trouvé avec ID: " + idStatus;
+            }
+            
             // Créer et sauvegarder le message
             Message message = new Message();
             message.setDateCommencement(dateCommencement);
             message.setDateSignalement(dateSignalement);
-            message.setIdIntervention(idIntervention);
+            message.setIntervention(interventionOpt.get());
             message.setRenfort(renfort);
             message.setDirection(direction);
             message.setSurfaceApproximative(surfaceApproximative);
             message.setPointRepere(pointRepere);
             message.setDescription(description);
-            message.setIdUserApp(idUserApp); // Ceci doit être bien défini!
+            message.setUserApp(userAppOpt.get());
             message.setLongitude(longitude);
             message.setLatitude(latitude);
             
@@ -121,30 +142,26 @@ public class AlerteService {
             // Créer l'historique de statut
             HistoriqueMessageStatus historique = new HistoriqueMessageStatus();
             historique.setDateChangement(LocalDateTime.now());
-            historique.setIdStatus(idStatus);
-            historique.setIdMessage(savedMessage.getIdMessage().intValue());
+            historique.setIdStatus(statusOpt.get());
+            historique.setMessage(savedMessage);
             
             historiqueRepository.save(historique);
             
             // DÉTERMINER LE NIVEAU D'ALERTE
-            // Récupérer le texte du status et de l'intervention
-            String statusText = getStatusTextById(idStatus);
-            String interventionText = getInterventionTextById(idIntervention);
+            String statusText = statusOpt.get().getStatus();
+            String interventionText = interventionOpt.get().getIntervention();
 
             System.out.println("🔍 Debug Alerte - Status: " + statusText + 
                   ", Intervention: " + interventionText + 
                   ", Renfort: " + renfort);
             
             niveauAlerteService.traiterAlerteComplete(
-                statusText, interventionText, renfort, idSite, savedMessage.getIdMessage().intValue());
+                statusText, interventionText, renfort, idSite, savedMessage.getIdMessage());
 
             // GÉNÉRER ET ENVOYER L'INFO DE RETOUR
             String infoRetour = infoRetourService.genererInfoRetour(savedMessage);
-            smsResponseService.sendResponse(phoneNumber, infoRetour);
+            // smsResponseService.sendResponse(phoneNumber, infoRetour);
             
-            // return "✅ Alerte enregistrée avec succès! ID: " + savedMessage.getIdMessage() + 
-            //        ", Niveau: " + niveauAlerte;
-
             return infoRetour;
             
         } catch (Exception e) {
@@ -154,31 +171,11 @@ public class AlerteService {
         } 
     }
 
-    private String getStatusTextById(Integer idStatus) {
-        if (idStatus == null) return "Inconnu";
-        try {
-            return statusMessageRepository.findById(idStatus)
-                .map(StatusMessage::getStatus)
-                .orElse("Inconnu");
-        } catch (Exception e) {
-            return "Inconnu";
+    private boolean isDuplicateMessage(Double longitude, Double latitude) {
+        if (longitude == null || latitude == null) {
+            return false;
         }
-    }
-    
-    private String getInterventionTextById(Integer idIntervention) {
-        if (idIntervention == null) return "Inconnu";
-        try {
-            return interventionRepository.findById(idIntervention.longValue())
-                .map(Intervention::getIntervention)
-                .orElse("Inconnu");
-        } catch (Exception e) {
-            return "Inconnu";
-        }
-    }
-
-    private boolean isDuplicateMessage(BigDecimal Longitude, BigDecimal Latitude) {
-        return messageRepository.existsByDetails(
-            Longitude, Latitude);
+        return messageRepository.existsByLongitudeAndLatitude(longitude, latitude);
     }
 
     // Méthodes utilitaires pour le parsing
@@ -187,7 +184,6 @@ public class AlerteService {
             return null;
         }
         try {
-            // Essayez différents formats de date/heure
             DateTimeFormatter[] formatters = {
                 DateTimeFormatter.ISO_LOCAL_DATE_TIME,
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
@@ -198,10 +194,8 @@ public class AlerteService {
             for (DateTimeFormatter formatter : formatters) {
                 try {
                     if (value.length() <= 10) {
-                        // Juste la date
                         return LocalDateTime.parse(value + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                     } else {
-                        // Date et heure
                         return LocalDateTime.parse(value, formatter);
                     }
                 } catch (DateTimeParseException e) {
@@ -219,9 +213,9 @@ public class AlerteService {
             return null;
         }
         try {
-            return Integer.parseInt(value.trim());
+            return Integer.valueOf(value.trim());
         } catch (NumberFormatException e) {
-            System.err.println("❌ Impossible de parser en integer: '" + value + "'");
+            System.err.println("❌ Impossible de convertir en Integer : '" + value + "'");
             return null;
         }
     }
@@ -234,13 +228,14 @@ public class AlerteService {
         return "true".equals(lowerValue) || "1".equals(lowerValue) || "oui".equals(lowerValue);
     }
     
-    private BigDecimal parseBigDecimal(String value) {
+    private Double parseDouble(String value) {
         if (value == null || value.trim().isEmpty() || "null".equalsIgnoreCase(value)) {
             return null;
         }
         try {
-            return new BigDecimal(value.trim());
+            return Double.valueOf(value.trim());
         } catch (NumberFormatException e) {
+            System.err.println("❌ Impossible de convertir en Double : '" + value + "'");
             return null;
         }
     }

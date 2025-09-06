@@ -2,9 +2,7 @@ package com.example.serveur.repository;
 
 import com.example.serveur.model.Message;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.math.BigDecimal;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,13 +10,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MessageRepository extends JpaRepository<Message, Long> {
+public interface MessageRepository extends JpaRepository<Message, Integer> {
      @Query("SELECT COUNT(m) > 0 FROM Message m WHERE " +
            "m.longitude = :longitude AND " +
            "m.latitude = :latitude ")
-    boolean existsByDetails(
-        @Param("longitude") BigDecimal longitude,
-        @Param("latitude") BigDecimal latitude);
+    boolean existsByLongitudeAndLatitude(
+        @Param("longitude") Double longitude,
+        @Param("latitude") Double latitude);
 
     // Compter les messages par site
     @Query(value = "SELECT p.id_site, COUNT(m.*)\r\n" + //

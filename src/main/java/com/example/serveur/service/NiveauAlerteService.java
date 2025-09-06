@@ -2,11 +2,17 @@ package com.example.serveur.service;
 
 import com.example.serveur.model.Alerte;
 import com.example.serveur.model.TypeAlerte;
+import com.example.serveur.model.Site;
+import com.example.serveur.model.Message;
 import com.example.serveur.repository.AlerteRepository;
 import com.example.serveur.repository.TypeAlerteRepository;
 import com.example.serveur.repository.StatusMessageRepository;
 import com.example.serveur.repository.InterventionRepository;
+import com.example.serveur.repository.SiteRepository;
+import com.example.serveur.repository.MessageRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class NiveauAlerteService {
@@ -15,15 +21,21 @@ public class NiveauAlerteService {
     private final AlerteRepository alerteRepository;
     private final StatusMessageRepository statusMessageRepository;
     private final InterventionRepository interventionRepository;
+    private final SiteRepository siteRepository;
+    private final MessageRepository messageRepository;
     
     public NiveauAlerteService(TypeAlerteRepository typeAlerteRepository,
                               AlerteRepository alerteRepository,
                               StatusMessageRepository statusMessageRepository,
-                              InterventionRepository interventionRepository) {
+                              InterventionRepository interventionRepository,
+                              SiteRepository siteRepository,
+                              MessageRepository messageRepository) {
         this.typeAlerteRepository = typeAlerteRepository;
         this.alerteRepository = alerteRepository;
         this.statusMessageRepository = statusMessageRepository;     
-        this.interventionRepository = interventionRepository;     
+        this.interventionRepository = interventionRepository;
+        this.siteRepository = siteRepository;
+        this.messageRepository = messageRepository;
     }
 
     public String determinerNiveauAlerteParId(Integer idStatus, Integer idIntervention, Boolean renfort) {
@@ -66,10 +78,25 @@ public class NiveauAlerteService {
             TypeAlerte typeAlerte = typeAlerteRepository.findByZone(niveauAlerte);
             
             if (typeAlerte != null) {
+                // Vérifier que le site existe
+                Optional<Site> siteOpt = siteRepository.findById(idSite);
+                if (siteOpt.isEmpty()) {
+                    System.err.println("❌ Site non trouvé avec ID: " + idSite);
+                    return;
+                }
+                
+                // Vérifier que le message existe
+                Optional<Message> messageOpt = messageRepository.findById(idMessage);
+                if (messageOpt.isEmpty()) {
+                    System.err.println("❌ Message non trouvé avec ID: " + idMessage);
+                    return;
+                }
+                
+                // Créer l'alerte avec les objets complets
                 Alerte alerte = new Alerte();
-                alerte.setIdSite(idSite);
-                alerte.setIdMessage(idMessage);
-                alerte.setIdTypeAlerte(typeAlerte.getIdTypeAlerte());
+                alerte.setSite(siteOpt.get());
+                alerte.setMessage(messageOpt.get());
+                alerte.setTypeAlerte(typeAlerte);
 
                 alerteRepository.save(alerte);
                 
@@ -81,6 +108,7 @@ public class NiveauAlerteService {
             }
         } catch (Exception e) {
             System.err.println("❌ Erreur lors de la création de l'alerte: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     

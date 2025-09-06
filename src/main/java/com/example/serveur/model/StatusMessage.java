@@ -8,16 +8,11 @@ public class StatusMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_status_message")
     private int idStatusMessage;
 
+    @Column(name = "status")
     private String status;
-
-    public StatusMessage() {}  // constructeur vide pour JPA
-
-    public StatusMessage(int idStatusMessage, String status) {
-        this.idStatusMessage = idStatusMessage;
-        this.status = status;
-    }
 
     // --- Getters & Setters ---
     public int getIdStatusMessage() {

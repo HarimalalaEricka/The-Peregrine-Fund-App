@@ -9,27 +9,29 @@ public class HistoriqueMessageStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_historique")
-    private Long idHistorique;
+    private int idHistorique;
     
     @Column(name = "date_changement")
     private LocalDateTime dateChangement;
     
-    @Column(name = "id_status")
-    private Integer idStatus;
+    @ManyToOne
+    @JoinColumn(name = "id_status", nullable = false)
+    private StatusMessage status;
     
-    @Column(name = "id_message")
-    private Integer idMessage;
+    @ManyToOne
+    @JoinColumn(name = "id_message", nullable = false)
+    private Message message;
     
     // Getters et setters
-    public Long getIdHistorique() { return idHistorique; }
-    public void setIdHistorique(Long idHistorique) { this.idHistorique = idHistorique; }
+    public int getIdHistorique() { return idHistorique; }
+    public void setIdHistorique(int idHistorique) { this.idHistorique = idHistorique; }
     
     public LocalDateTime getDateChangement() { return dateChangement; }
     public void setDateChangement(LocalDateTime dateChangement) { this.dateChangement = dateChangement; }
     
-    public Integer getIdStatus() { return idStatus; }
-    public void setIdStatus(Integer idStatus) { this.idStatus = idStatus; }
+    public StatusMessage getStatus() { return status; }
+    public void setIdStatus(StatusMessage status) { this.status = status; }
     
-    public Integer getIdMessage() { return idMessage; }
-    public void setIdMessage(Integer idMessage) { this.idMessage = idMessage; }
+    public Message getMessage() { return message; }
+    public void setMessage(Message message) { this.message = message; }
 }

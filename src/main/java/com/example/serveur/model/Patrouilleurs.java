@@ -1,5 +1,7 @@
 package com.example.serveur.model;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -7,33 +9,31 @@ public class Patrouilleurs {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_patrouilleur")
     private int idPatrouilleur;
 
+    @Column(name = "nom", nullable = false, length = 100)
     private String nom;
+
+    @Column(name = "role", length = 50)
     private String role;
+
+    @Column(name = "telephone", nullable = false, length = 20)
     private String telephone;
-    private String dateRecrutement;  // VARCHAR(50) en DB
+
+    @Column(name = "date_recrutement")
+    private LocalDateTime dateRecrutement;
 
     @ManyToOne
-    @JoinColumn(name = "id_site")  // clé étrangère vers Site
+    @JoinColumn(name = "id_site", nullable = false)
     private Site site;
-
-    public Patrouilleurs() {}  // constructeur vide pour JPA
-
-    public Patrouilleurs(String nom, String role, String telephone, String dateRecrutement, Site site) {
-        this.nom = nom;
-        this.role = role;
-        this.telephone = telephone;
-        this.dateRecrutement = dateRecrutement;
-        this.site = site;
-    }
 
     // --- Getters ---
     public int getIdPatrouilleur() { return idPatrouilleur; }
     public String getNom() { return nom; }
     public String getRole() { return role; }
     public String getTelephone() { return telephone; }
-    public String getDateRecrutement() { return dateRecrutement; }
+    public LocalDateTime getDateRecrutement() { return dateRecrutement; }
     public Site getSite() { return site; }
 
     // --- Setters ---
@@ -41,6 +41,6 @@ public class Patrouilleurs {
     public void setNom(String nom) { this.nom = nom; }
     public void setRole(String role) { this.role = role; }
     public void setTelephone(String telephone) { this.telephone = telephone; }
-    public void setDateRecrutement(String dateRecrutement) { this.dateRecrutement = dateRecrutement; }
+    public void setDateRecrutement(LocalDateTime dateRecrutement) { this.dateRecrutement = dateRecrutement; }
     public void setSite(Site site) { this.site = site; }
 }
