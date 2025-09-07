@@ -29,27 +29,31 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
+        </activity>
+
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ThePeregrineFund.NoActionBar"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
         <activity
-            android:name=".DashboardActivity"
-            android:exported="false"
-            android:theme="@style/Theme.ThePeregrineFund.NoActionBar"
-            android:screenOrientation="portrait"/>
-          <activity
             android:name=".BaseActivity"
             android:exported="false"
             android:theme="@style/Theme.ThePeregrineFund.NoActionBar"
             android:screenOrientation="portrait" />
-            <activity
+
+        <activity
             android:name=".SendAlerteActivity"
             android:exported="false"
             android:theme="@style/Theme.ThePeregrineFund.NoActionBar"
             android:screenOrientation="portrait" />
-        
+
         <activity
             android:name=".StatActivity"
             android:exported="false"
@@ -61,7 +65,6 @@
             android:exported="false"
             android:theme="@style/Theme.ThePeregrineFund.NoActionBar"
             android:screenOrientation="portrait" />
-
 
         <receiver android:name=".SmsReceiver" android:exported="true">
             <intent-filter>

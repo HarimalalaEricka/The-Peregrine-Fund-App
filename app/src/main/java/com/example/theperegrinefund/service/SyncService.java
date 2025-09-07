@@ -56,14 +56,14 @@ public class SyncService {
 
         String url;
         try {
-            url = ConfigLoader.getServerUrl(context);
+            url = ConfigLoader.getBackupServerUrl(context);
             Log.d(TAG, "URL chargée depuis config.properties : " + url);
         } catch (Exception e) {
             Log.e(TAG, "Impossible de charger l'URL du serveur, utilisation de fallback", e);
             url = "https://a19675263dca.ngrok-free.app";
         }
 
-        BASE_URL = url + "/sync";
+        BASE_URL = url ;
         Log.d(TAG, "BASE_URL finale: " + BASE_URL);
     }
 

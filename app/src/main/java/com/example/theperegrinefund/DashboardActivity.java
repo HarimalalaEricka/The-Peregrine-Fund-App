@@ -113,7 +113,7 @@ public class DashboardActivity extends AppCompatActivity {
         SyncService syncService = new SyncService(this);
         AppData appData = new AppData();
         int userId = appData.getCurrentUserId();
-        FIXED_USER_ID = userId;
+        FIXED_USER_ID = 1;
 
         syncService.downloadStatus(new SyncService.StatusCallback() {
             @Override
