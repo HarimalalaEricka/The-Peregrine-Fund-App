@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AlerteRepository extends JpaRepository<Alerte, Long> {
+public interface AlerteRepository extends JpaRepository<Alerte, Integer> {
     // Compter le total des alertes
     long count();
     
