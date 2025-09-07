@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import java.time.LocalDateTime;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Integer> {
@@ -25,4 +26,10 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
                 "JOIN Patrouilleurs p ON u.id_patrouilleur = p.id_patrouilleur\r\n" + //
                 "GROUP BY p.id_site", nativeQuery = true)
     List<Object[]> countMessagesBySite();
+
+     boolean existsByDateSignalement(LocalDateTime dateSignalement);
+
+  List<Message> findByUserApp_IdUserApp(int id);
+
+
 }

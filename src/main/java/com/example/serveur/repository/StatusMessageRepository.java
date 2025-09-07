@@ -10,4 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface StatusMessageRepository extends JpaRepository<StatusMessage, Integer> {
     @Query("SELECT s FROM StatusMessage s WHERE s.status = :status")
     StatusMessage findByStatus(@Param("status") String status);
+
+        // Vérifie si un status existe déjà
+    boolean existsByStatus(String status);
 }
