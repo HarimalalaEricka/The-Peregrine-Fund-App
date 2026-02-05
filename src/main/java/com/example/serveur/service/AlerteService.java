@@ -1,22 +1,34 @@
 package com.example.serveur.service;
 
+import com.example.serveur.model.Alerte;
+import com.example.serveur.model.FonctionZoneAlerte;
 import com.example.serveur.model.HistoriqueMessageStatus;
 import com.example.serveur.model.Intervention;
 import com.example.serveur.model.Message;
 import com.example.serveur.model.StatusMessage;
 import com.example.serveur.model.UserApp;
+import com.example.serveur.model.User;
 import com.example.serveur.repository.HistoriqueMessageStatusRepository;
 import com.example.serveur.repository.MessageRepository;
 import com.example.serveur.repository.InterventionRepository;
 import com.example.serveur.repository.StatusMessageRepository;
 import com.example.serveur.repository.UserAppRepository;
+import com.example.serveur.repository.UserRepository;
+import com.example.serveur.repository.AlerteRepository;
+import com.example.serveur.repository.FonctionZoneAlerteRepository;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+
+
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
 public class AlerteService {
@@ -29,6 +41,13 @@ public class AlerteService {
     private final NiveauAlerteService niveauAlerteService;
     private final InfoRetourService infoRetourService;
     private final SmsResponseService smsResponseService;
+    private final FonctionZoneAlerteRepository fonctionZoneAlerteRepository;
+    private final UserRepository userRepository;
+
+    @Autowired
+    private EmailService emailService;
+    
+    private final AlerteRepository alerteRepository;
     
     public AlerteService(MessageRepository messageRepository,
                         HistoriqueMessageStatusRepository historiqueRepository,
@@ -37,7 +56,10 @@ public class AlerteService {
                         UserAppRepository userAppRepository,
                         NiveauAlerteService niveauAlerteService,
                         InfoRetourService infoRetourService,
-                        SmsResponseService smsResponseService) {
+                        SmsResponseService smsResponseService,
+                        AlerteRepository alerteRepository,
+                        FonctionZoneAlerteRepository fonctionZoneAlerteRepository, // ← Nouveau
+                        UserRepository userRepository) {
         this.messageRepository = messageRepository;
         this.historiqueRepository = historiqueRepository;
         this.interventionRepository = interventionRepository;
@@ -46,6 +68,25 @@ public class AlerteService {
         this.niveauAlerteService = niveauAlerteService;
         this.infoRetourService = infoRetourService;
         this.smsResponseService = smsResponseService;
+        this.alerteRepository = alerteRepository;
+        this.fonctionZoneAlerteRepository = fonctionZoneAlerteRepository;
+        this.userRepository = userRepository;
+    }
+
+    public Alerte save(Alerte alerte) {
+        return alerteRepository.save(alerte);
+    }
+
+    public List<Alerte> findAll() {
+        return alerteRepository.findAll();
+    }
+
+    public Optional<Alerte> findById(int id) {
+        return alerteRepository.findById(id);
+    }
+
+    public void deleteById(int id) {
+        alerteRepository.deleteById(id);
     }
     
     /**
@@ -77,8 +118,8 @@ public class AlerteService {
             String pointRepere = emptyToNull(parties[6]);
             String description = emptyToNull(parties[7]);
             Integer idUserApp = parseInt(parties[8]);
-            Double longitude = parseDouble(parties[10]);
-            Double latitude = parseDouble(parties[9]);
+            Double longitude = parseDouble(parties[9]);
+            Double latitude = parseDouble(parties[10]);
             Integer idStatus = parseInt(parties[11]);
             
             // Validation renforcée des champs obligatoires
@@ -155,8 +196,14 @@ public class AlerteService {
                   ", Intervention: " + interventionText + 
                   ", Renfort: " + renfort);
             
-            niveauAlerteService.traiterAlerteComplete(
+            String niveau = niveauAlerteService.traiterAlerteComplete(
                 statusText, interventionText, renfort, idSite, savedMessage.getIdMessage());
+
+            // ENVOYER LES ALERTES AUX FONCTIONS CONCERNÉES
+            envoyerAlerteAuxFonctionsConcernées(niveau, savedMessage);
+
+            emailService.envoyerAlertesPourZone(niveau);
+            
 
             // GÉNÉRER ET ENVOYER L'INFO DE RETOUR
             String infoRetour = infoRetourService.genererInfoRetour(savedMessage);
@@ -246,4 +293,79 @@ public class AlerteService {
         }
         return value.trim();
     }
+
+    // Ajoutez cette nouvelle méthode
+    private void envoyerAlerteAuxFonctionsConcernées(String niveauAlerte, Message message) {
+        try {
+            // 1. Trouver les fonctions associées à cette zone d'alerte
+            List<FonctionZoneAlerte> fonctionsZone = fonctionZoneAlerteRepository.findByTypeAlerteZone(niveauAlerte);
+            
+            if (fonctionsZone.isEmpty()) {
+                System.out.println("⚠️ Aucune fonction trouvée pour la zone: " + niveauAlerte);
+                return;
+            }
+            
+            // 2. Récupérer les IDs des fonctions concernées
+            List<Integer> idFonctions = fonctionsZone.stream()
+                .map(fza -> fza.getFonction().getIdFonction())
+                .collect(Collectors.toList());
+            
+            // 3. Trouver les utilisateurs ayant ces fonctions
+            List<User> usersConcernes = userRepository.findByFonctionIdIn(idFonctions);
+            
+            if (usersConcernes.isEmpty()) {
+                System.out.println("⚠️ Aucun utilisateur trouvé pour les fonctions: " + idFonctions);
+                return;
+            }
+            
+            // 4. Récupérer les numéros de téléphone
+            List<String> numerosTelephone = usersConcernes.stream()
+                .map(User::getTelephone)
+                .filter(tel -> tel != null && !tel.trim().isEmpty())
+                .collect(Collectors.toList());
+            
+            // 5. Préparer le message détaillé
+            String messageDetaille = genererMessageDetailleAlerte(message, niveauAlerte);
+            
+            // 6. Envoyer les SMS
+            for (String numero : numerosTelephone) {
+                try {
+                    smsResponseService.sendResponseSansChiffre(numero, messageDetaille);
+                    System.out.println("✅ Alerte envoyée à: " + numero);
+                } catch (Exception e) {
+                    System.err.println("❌ Erreur envoi alerte à " + numero + ": " + e.getMessage());
+                }
+            }
+            
+            System.out.println("📨 Alertes envoyées à " + numerosTelephone.size() + " utilisateurs pour la zone: " + niveauAlerte);
+            
+        } catch (Exception e) {
+            System.err.println("❌ Erreur lors de l'envoi des alertes aux fonctions: " + e.getMessage());
+        }
+    }
+
+    // Ajoutez cette méthode pour générer le message détaillé
+    private String genererMessageDetailleAlerte(Message message, String niveauAlerte) {
+        return String.format("""
+            🚨 ALERTE %s
+            📍 Localisation: %.6f, %.6f
+            🕒 Début: %s
+            🚒 Intervention: %s
+            📏 Surface: %s m²
+            🧭 Direction: %s
+            📝 Description: %s
+            🔧 Renfort: %s
+            """,
+            niveauAlerte,
+            message.getLatitude(),
+            message.getLongitude(),
+            message.getDateCommencement().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+            message.getIntervention().getIntervention(),
+            message.getSurfaceApproximative() != null ? message.getSurfaceApproximative().toString() : "Non spécifiée",
+            message.getDirection(),
+            message.getDescription() != null ? message.getDescription() : "Aucune description",
+            message.getRenfort() != null && message.getRenfort() ? "Oui" : "Non"
+        );
+    }
+    
 }

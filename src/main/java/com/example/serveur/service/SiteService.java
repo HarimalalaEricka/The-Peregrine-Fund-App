@@ -1,19 +1,41 @@
 package com.example.serveur.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.example.serveur.repository.PatrouilleursRepository;
+import com.example.serveur.repository.SiteRepository;
 import com.example.serveur.model.Patrouilleurs;
+import com.example.serveur.model.Site;
 
 @Service
 public class SiteService {
     
     private final PatrouilleursRepository patrouilleurRepository;
+    private final SiteRepository siteRepository;
+
     
-    public SiteService(PatrouilleursRepository patrouilleurRepository) {
+    public SiteService(PatrouilleursRepository patrouilleurRepository, SiteRepository siteRepository) {
         this.patrouilleurRepository = patrouilleurRepository;
+        this.siteRepository = siteRepository;
+    }
+
+    public Site save(Site site) {
+        return siteRepository.save(site);
+    }
+
+    public List<Site> findAll() {
+        return siteRepository.findAll();
+    }
+
+    public Optional<Site> findById(int id) {
+        return siteRepository.findById(id);
+    }
+
+    public void deleteById(int id) {
+        siteRepository.deleteById(id);
     }
     
     /**

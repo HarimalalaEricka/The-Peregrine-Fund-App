@@ -26,6 +26,11 @@ public class SmsProcessingService {
     }
 
     public String processMessage(String messageChiffre, String phoneNumber) throws Exception {
+         // NETTOYAGE DU MESSAGE - supprimer les espaces, retours à la ligne, etc.
+        messageChiffre = messageChiffre.trim().replace("\n", "").replace("\r", "");
+        
+        System.out.println("🔍 Message après nettoyage: '" + messageChiffre + "'");
+        
         // Vérifier si le message est déjà en clair
         if (!isBase64(messageChiffre)) {
             return messageChiffre; // Déjà en clair

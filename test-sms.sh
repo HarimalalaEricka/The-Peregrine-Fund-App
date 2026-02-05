@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # URL de l'API
-API_URL="http://localhost:8080/api/webhook"
+API_URL="http://localhost:8080/api/message"
 
 echo "🚀 Tests Complets du Système d'Alerte"
 echo "======================================"
@@ -33,6 +33,8 @@ test_alerte() {
     echo "----------------------------------------"
 }
 
+test_alerte "2" "dJ8fjzhFbYqj4M4sawPKKA=="
+
 # # Test 1: Alerte Vert (Début de feu + Intervention possible)
 # test_alerte "1" "2025-09-05 10:00:00/2025-09-05 10:05:00/1/false/Sud/50.0/PointA/Petit feu/4/-18.879180/47.107890/1" "Vert - Début de feu avec intervention possible"
 
@@ -49,7 +51,7 @@ test_alerte() {
 # test_alerte "4" "2025-09-05 10:00:00/2025-09-05 10:05:00/3/false/Sud/500.0/PointD/Feu critique/4/-18.882000/47.510000/2" "Rouge - Feu en cours avec intervention impossible"
 
 # # Test 5: Feu maîtrisé (Vert)
-# test_alerte "5" "2025-09-05 10:00:00/2025-09-05 10:05:00/1/false/Sud/0.0/PointE/Feu éteint/2/-18.883000/47.511000/3" "Vert - Feu maîtrisé"
+# test_alerte "5" "2025-09-05 10:00:00/2025-09-05 10:05:00/1/false/Sud/0.0/PointE/Feu éteint/2/-18.883000/47.511000/1" "Vert - Feu maîtrisé"
 
 # # Test 6: Format invalide (doit retourner une erreur)      
 # test_alerte "6" "2025-09-05 10:00:00/2025-09-05 10:05:00/2/false/Sud" "Format invalide - Doit retourner une erreur"

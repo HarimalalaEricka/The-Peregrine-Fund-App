@@ -123,7 +123,7 @@ public class NiveauAlerteService {
         String niveau = determinerNiveauAlerteParId(idStatus, idIntervention, renfort);
         
         if (!"Inconnu".equals(niveau)) {
-            creerAlerte(idSite, idMessage, niveau);
+            creerAlerte(idSite, idMessage, niveau);  
         }
         
         return niveau;

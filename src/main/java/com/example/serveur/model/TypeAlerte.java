@@ -1,5 +1,7 @@
 package com.example.serveur.model;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -19,4 +21,7 @@ public class TypeAlerte {
     
     public String getZone() { return zone; }
     public void setZone(String zone) { this.zone = zone; }
+
+    @OneToMany(mappedBy = "typeAlerte")
+    private List<FonctionZoneAlerte> fonctionZoneAlertes;
 }

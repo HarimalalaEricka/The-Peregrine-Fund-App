@@ -2,6 +2,7 @@ package com.example.serveur.service;
 
 import com.example.serveur.model.Message;
 import com.example.serveur.model.TypeAlerte;
+import com.example.serveur.model.Site;
 import com.example.serveur.repository.AlerteRepository;
 import com.example.serveur.repository.MessageRepository;
 import com.example.serveur.repository.TypeAlerteRepository;
@@ -58,7 +59,8 @@ public class InfoRetourService {
      * 1. Localisation: latitude/longitude
      */
     private String getLocalisation(Message message) {
-        if (message.getLatitude() != null && message.getLongitude() != null) {
+        Site site = message.getUserApp().getPatrouilleur().getSite();
+        if (site.getLatitude() != null && site.getLongitude() != null) {
             return message.getLatitude() + "/" + message.getLongitude();
         }
         return "0/0"; // Valeur par défaut si null
