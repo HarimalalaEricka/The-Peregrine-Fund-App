@@ -21,6 +21,7 @@ com\example\serveur\service\PatrouilleurService.class
 com\example\serveur\controller\StatusMessageController.class
 com\example\serveur\repository\FonctionRepository.class
 com\example\serveur\controller\ServeurController$GatewayWebhookRequest.class
+com\example\serveur\repository\FonctionZoneAlerteRepository.class
 com\example\serveur\service\TypeAlerteService.class
 com\example\serveur\repository\UserAppRepository.class
 com\example\serveur\model\SmsResponse.class
